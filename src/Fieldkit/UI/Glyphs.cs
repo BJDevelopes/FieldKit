@@ -26,6 +26,7 @@ public static class Glyphs
     public const string Network = "\uE968";
     public const string Wifi = "\uE701";
     public const string HardDrive = "\uEDA2";
+    public const string PieChart = "\uEB05";
     public const string Bolt = "\uE945";
     public const string Battery = "\uE83F";
     public const string Tools = "\uE90F";

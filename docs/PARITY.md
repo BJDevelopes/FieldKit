@@ -131,3 +131,6 @@ Features Fieldkit adds beyond Vorssaint's set (not counted above).
 | Feature | Id | What it does |
 |---|---|---|
 | Break reminders | `breakReminders` | Notifications every 20 minutes to look away for 20 seconds (20-20-20) and every hour to stand up and move; a break you already took (away from the PC) resets them, and full-screen apps are left alone. Upstream PR #2524. |
+| Duplicate files | `duplicateFinder` | Scans chosen folders for files with identical contents (size, then a hash of the first 64 KB, then SHA-256), skipping hidden, system and online-only OneDrive files; extra copies go to the Recycle Bin. Upstream issue #3022. |
+| Disk usage | `diskUsage` | Measures a drive or folder (in parallel, without following links or opening online-only files) and shows it as a sunburst with the largest items listed; anything can go to the Recycle Bin from there. Upstream issue #3071. |
+| Key remapping | `keyRemap` | The keyboard hook swallows a remapped key or shortcut and sends its target, per app if wanted; plain keys keep their modifiers, shortcuts lift the ones the target does not use. Upstream pull request #2742. |

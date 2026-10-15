@@ -3,6 +3,18 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
+## Unreleased
+
+New Fieldkit extras (they start uninstalled; add them in Settings → Features):
+
+- **Duplicate files:** finds copies of the same file in the folders you choose and moves the extra
+  copies to the Recycle Bin. One copy of every file always stays; repositories, package folders and
+  online-only OneDrive files are left alone.
+- **Disk usage:** a sunburst chart of a drive or folder with its largest items listed. Click a ring to
+  go into a folder; anything can go to the Recycle Bin from the list (Windows folders are not offered).
+- **Key remapping:** make a key or shortcut act as another (Caps Lock as Esc, Ctrl+Alt+K as
+  Ctrl+Shift+Esc), everywhere or in one app. Settings → Key remapping.
+
 ## 0.1.0 (2026-10-14)
 
 First preview: the feature set of [Vorssaint](https://github.com/vorssaint/vorssaint-utils) for macOS,

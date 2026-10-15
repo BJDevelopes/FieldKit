@@ -16,6 +16,8 @@ public struct KeyEvent
     public bool IsInjected;
     /// <summary>Injected by this app (see <see cref="InputSender.Tag"/>).</summary>
     public bool IsOwn;
+    /// <summary>Sent by this app as a user remap (see <see cref="InputSender.RemapTag"/>).</summary>
+    public bool IsRemap;
     public uint Time;
     public uint Flags;
 }
@@ -230,6 +232,7 @@ public static class InputHooks
                 IsSystem = msg is Native.WM_SYSKEYDOWN or Native.WM_SYSKEYUP,
                 IsInjected = (data.flags & Native.LLKHF_INJECTED) != 0,
                 IsOwn = data.dwExtraInfo == InputSender.Tag,
+                IsRemap = data.dwExtraInfo == InputSender.RemapTag,
                 Time = data.time,
                 Flags = data.flags,
             };

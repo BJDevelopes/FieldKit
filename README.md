@@ -76,6 +76,10 @@ a simulated island at the top of the screen for the Dynamic Island, …). Featur
 already provides (F2 rename, cut and paste in Explorer, fixed virtual desktop order) are marked as
 built into Windows and point at the system setting.
 
+Fieldkit also has a few extras that Vorssaint does not ship, mostly ideas from its issues and pull
+requests: break reminders, duplicate files, disk usage and key remapping. They start uninstalled;
+add them in Settings → Features.
+
 ## Privacy
 
 No account, no telemetry, no analytics. Everything stays in `%APPDATA%\Fieldkit`, and the network is

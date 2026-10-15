@@ -535,13 +535,16 @@ public sealed class ShortcutRecorder : Button
 {
     private readonly string _key;
     private readonly string _default;
+    private readonly bool _allowSingleKeys;
     private bool _recording;
     private IDisposable? _suspension;
 
-    public ShortcutRecorder(string key, string defaultShortcut)
+    /// <param name="allowSingleKeys">Accept a key without modifiers (key remapping: Caps Lock, Insert…).</param>
+    public ShortcutRecorder(string key, string defaultShortcut, bool allowSingleKeys = false)
     {
         _key = key;
         _default = defaultShortcut;
+        _allowSingleKeys = allowSingleKeys;
         // Implicit styles do not apply to subclasses; wear the app's Button style explicitly.
         SetResourceReference(StyleProperty, typeof(Button));
         MinWidth = 120;
@@ -592,7 +595,7 @@ public sealed class ShortcutRecorder : Button
             StopRecording();
             return;
         }
-        if (key is Key.Back or Key.Delete && Keyboard.Modifiers == ModifierKeys.None)
+        if (key is Key.Back or Key.Delete && Keyboard.Modifiers == ModifierKeys.None && !_allowSingleKeys)
         {
             Settings.Set(_key, string.Empty);
             StopRecording();
@@ -605,7 +608,7 @@ public sealed class ShortcutRecorder : Button
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt)) mods |= Modifiers.Alt;
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) mods |= Modifiers.Shift;
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Windows)) mods |= Modifiers.Win;
-        if (mods == Modifiers.None && vk is not (>= 0x70 and <= 0x87)) return; // need a modifier unless F-key
+        if (mods == Modifiers.None && !_allowSingleKeys && vk is not (>= 0x70 and <= 0x87)) return; // need a modifier unless F-key
         Settings.Set(_key, new Shortcut(mods, vk).ToString());
         StopRecording();
     }
