@@ -3,12 +3,14 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
-## Unreleased
+## 0.4.0 (2026-10-15)
 
 - **The Dynamic Island is now part of Essentials and lives in the taskbar by default,** in place of the square
   Fieldkit button. Choose "Top of the screen" in Settings → Dynamic Island → Where, or turn it off there.
   Its settings page and feature description now say so too. While the island is open, its pill stays in the
   taskbar; click it to close the island.
+- **A Screenshot tile in Controls:** the Dynamic Island's Controls section and the panel's Quick toggles gain a
+  Screenshot button that starts the capture selector. Hide or reorder it in Settings → Quick toggles.
 - **An installer** next to the portable zip in each release (`Fieldkit-<version>-setup-x64.exe`, and arm64):
   per user without an administrator prompt, a Start menu shortcut, updates in place, and an uninstaller that
   turns off Start with Windows and removes the browser picker's registration (settings stay).

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 using Fieldkit.Core;
+using Fieldkit.Features.Capture;
 using Fieldkit.Features.Energy;
 using Fieldkit.UI;
 
@@ -31,6 +32,8 @@ public static class QuickTogglesCatalog
             () => KeepAwakeService.Current?.IsActive == true, EnergyModule.ToggleKeepAwake, KeepAwakeService.Id),
         new("mute", "Mute sound", "Mutes or unmutes the speakers.", Glyphs.Mute,
             QuickToggleActions.IsMuted, QuickToggleActions.ToggleMute),
+        new("screenshot", "Screenshot", "Drag over what to capture, then annotate, copy or pin it.", Glyphs.Camera,
+            null, () => CaptureEntry.Start(CaptureTool.Screenshot, false), "screenshot"),
         new("emptyRecycleBin", "Empty Recycle Bin", "Removes everything from the Recycle Bin.", Glyphs.Delete,
             null, QuickToggleActions.EmptyRecycleBin),
         new("ejectDrives", "Eject all drives", "Safely ejects every external drive.", Glyphs.Usb,
