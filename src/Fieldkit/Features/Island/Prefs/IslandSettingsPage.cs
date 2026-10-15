@@ -174,7 +174,7 @@ public static class IslandSettingsPage
         }
         var reopen = new List<(string, string)> { ("last", "Last page") };
         reopen.AddRange(IslandLogic.Sections.Select(s => (s.Id, s.Title)));
-        var reopenChoice = Ui.Choice("notch.reopenUi", reopen, Settings.GetBool(IslandKeys.ReturnHome, false) ? Settings.GetString(IslandKeys.HomeModule, IslandDefaults.HomeModule) : "last", v =>
+        var reopenChoice = Ui.Choice("notch.reopenUi", reopen, Settings.GetBool(IslandKeys.ReturnHome, IslandDefaults.ReturnHome) ? Settings.GetString(IslandKeys.HomeModule, IslandDefaults.HomeModule) : "last", v =>
         {
             Settings.Set(IslandKeys.ReturnHome, v != "last");
             if (v != "last") Settings.Set(IslandKeys.HomeModule, v);

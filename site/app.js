@@ -109,6 +109,7 @@ function draw(surface, { onButton } = {}) {
       default:
         continue;
     }
+    if (n.id?.startsWith("installed:")) node.dataset.installed = n.id.slice(10); // the "Installed" badge of a feature row
     root.append(node);
     if (n.k === "t") for (const b of buttons) if (inside(n, b.n)) b.texts.push(node);
   }
@@ -190,6 +191,7 @@ function syncFeatureButtons(root, buttons) {
     b.node.className = `n-btn ${on ? "plain" : "accent"}`;
     if (b.texts[0]) { b.texts[0].textContent = on ? "Uninstall" : "Install"; b.texts[0].style.color = on ? "" : "#fff"; }
   }
+  for (const badge of root.querySelectorAll("[data-installed]")) badge.hidden = !installed(badge.dataset.installed);
   const total = DATA.features.length;
   for (const t of root.querySelectorAll(".n-t")) {
     if (/^\d+ of \d+ features installed$/.test(t.textContent)) t.textContent = `${state.installed.size} of ${total} features installed`;

@@ -9,6 +9,13 @@ All notable changes are listed here. Versions follow [semantic versioning](https
   Fieldkit button. Choose "Top of the screen" in Settings → Dynamic Island → Where, or turn it off there.
   Its settings page and feature description now say so too. While the island is open, its pill stays in the
   taskbar; click it to close the island.
+- **Installing features shows progress.** Install, Uninstall, "Install all" and the bundles work through the
+  features one at a time with a progress bar ("Installing Screenshot… 12 of 83") and a note when they are done,
+  and the button answers at once with "Installing…". Installed features carry a green "Installed" badge; the
+  yellow "Partial" badge is gone (it only said the macOS app has options Fieldkit lacks, and read like an
+  install state; that detail stays in each feature's info tooltip).
+- **The island opens on Controls** when nothing is going on (no music, timer or agents), instead of the last
+  page you looked at. Change it in Settings → Dynamic Island → Reopen on.
 - **A Screenshot tile in Controls:** the Dynamic Island's Controls section and the panel's Quick toggles gain a
   Screenshot button that starts the capture selector. Hide or reorder it in Settings → Quick toggles.
 - **An installer** next to the portable zip in each release (`Fieldkit-<version>-setup-x64.exe`, and arm64):

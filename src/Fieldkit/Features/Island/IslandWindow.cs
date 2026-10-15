@@ -423,7 +423,7 @@ public sealed class IslandWindow : Window
         {
             _nav.Section = IslandLogic.ActivitySection(a);
         }
-        else if (Settings.GetBool(IslandKeys.ReturnHome, false))
+        else if (Settings.GetBool(IslandKeys.ReturnHome, IslandDefaults.ReturnHome))
         {
             _nav.Section = Settings.GetString(IslandKeys.HomeModule, IslandDefaults.HomeModule);
         }

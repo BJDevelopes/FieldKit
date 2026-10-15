@@ -358,6 +358,43 @@ public partial class App : Application
     }
 
     /// <summary>
+    /// The installer works through its queue: a few installed features are uninstalled and installed again, one per
+    /// turn of the UI thread, and it must end idle with each in the state asked for.
+    /// </summary>
+    private static bool SelfTestInstaller()
+    {
+        FeatureInstaller.ShowNotice = false;
+        var sample = FeatureCatalog.All.Where(f => f.IsAvailable && !f.Beta).Take(4).ToList();
+        if (sample.Count == 0) return true;
+
+        bool Run(bool available)
+        {
+            var done = false;
+            var frame = new DispatcherFrame();
+            void OnChanged()
+            {
+                if (FeatureInstaller.Busy) return;
+                done = true;
+                frame.Continue = false;
+            }
+            FeatureInstaller.Changed += OnChanged;
+            var timeout = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+            timeout.Tick += (_, _) => frame.Continue = false;
+            timeout.Start();
+            FeatureInstaller.Run(sample.Select(f => (f.Id, available)).ToList());
+            if (FeatureInstaller.Busy) Dispatcher.PushFrame(frame);
+            else done = true;
+            timeout.Stop();
+            FeatureInstaller.Changed -= OnChanged;
+            return done && sample.All(f => f.IsAvailable == available);
+        }
+
+        var passed = Run(false) && Run(true);
+        Log.Info($"Selftest: the installer cycled {sample.Count} features: {(passed ? "ok" : "failed")}");
+        return passed;
+    }
+
+    /// <summary>
     /// Health check used by CI: every module registers, every surface builds and every
     /// service can start and stop. Exit code 0 on success.
     /// </summary>
@@ -379,6 +416,7 @@ public partial class App : Application
                 try { page.Build(); }
                 catch (Exception ex) { ok = false; Console.Error.WriteLine($"settings page {page.Id}: {ex.Message}"); }
             }
+            if (!SelfTestInstaller()) { ok = false; Console.Error.WriteLine("feature installer: did not reach the requested state"); }
             var (full, partial, native, planned) = ParityReport.Counts();
             Log.Info($"Selftest: {r.PanelSections.Count} sections, {r.SettingsPages.Count} pages; parity {full}/{partial}/{native}/{planned}");
         }

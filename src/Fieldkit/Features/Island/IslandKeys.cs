@@ -118,6 +118,7 @@ public static class IslandDefaults
     public const double HoverDelay = 0.25;
     public const double CloseDelay = 0.18;
     public const string HomeModule = "controls";
+    public const bool ReturnHome = true; // with nothing happening, open on Controls rather than the last page
     public const string IdleContent = "music";
     public const string HiddenControls = "keyboardLight,microphone";
     public const int TimerMinutes = 15;

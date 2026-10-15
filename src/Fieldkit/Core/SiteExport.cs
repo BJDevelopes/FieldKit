@@ -239,6 +239,7 @@ public static class SiteExport
                 if (tb.TextWrapping != TextWrapping.NoWrap) n["wr"] = 1;
                 if (tb.TextTrimming != TextTrimming.None) n["el"] = 1;
                 if (n.GetValueOrDefault("f") is not "icon") texts.Add(text);
+                if (Id() is { } textId && textId.StartsWith("installed:", StringComparison.Ordinal)) n["id"] = textId;
                 return;
             }
             case CheckBox cb when IsToggle(cb):
@@ -354,6 +355,7 @@ public static class SiteExport
         if (bgCss is not null || bdCss is not null)
         {
             var n = Node("r");
+            if (Id() is { } boxId && boxId.StartsWith("installed:", StringComparison.Ordinal)) n["id"] = boxId;
             if (bgCss is not null) n["bg"] = bgCss;
             if (bdCss is not null)
             {

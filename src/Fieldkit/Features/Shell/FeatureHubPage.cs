@@ -22,11 +22,8 @@ public sealed record FeatureBundle(string Id, string Name, string Description, s
             ["monitorCPU", "monitorMemory", "monitorPower"], []),
     ];
 
-    public void Apply()
-    {
-        foreach (var f in FeatureCatalog.All) f.SetAvailable(Features.Contains(f.Id));
-        foreach (var key in EnableKeys) Settings.Set(key, true);
-    }
+    /// <summary>Installs this bundle's features and uninstalls the rest, one at a time with progress on the Features page.</summary>
+    public void Apply() => FeatureInstaller.Run(FeatureCatalog.All.Select(f => (f.Id, Features.Contains(f.Id))), EnableKeys);
 }
 
 /// <summary>Settings → Features: install only what you use, plus the permissions portal.</summary>
@@ -38,9 +35,11 @@ public static class FeatureHubPage
     {
         var host = new ContentControl();
         var pending = false;
-        void Render() => host.Content = BuildContent(Render);
+        InstallProgress? progress = null;
+        void Render() => host.Content = BuildContent(Render, out progress);
         // Install/Uninstall clicks change availability; rebuild after the click has drawn, and only once
-        // for a burst of changes (bundles and "Install all" change dozens of keys at once).
+        // for a burst of changes. While the installer works through a bundle the page only shows its progress
+        // (rebuilding 80 rows after every feature would be slow); it is rebuilt once at the end.
         void Schedule()
         {
             if (pending) return;
@@ -48,16 +47,59 @@ public static class FeatureHubPage
             host.Dispatcher.BeginInvoke(() =>
             {
                 pending = false;
-                Render();
+                if (!FeatureInstaller.Busy) Render();
             }, System.Windows.Threading.DispatcherPriority.Background);
         }
         Render();
         Ui.Track(host, () => Settings.ObservePrefix("feature.", Schedule));
+        Ui.Track(host, () =>
+        {
+            void OnInstaller()
+            {
+                progress?.Update();
+                if (!FeatureInstaller.Busy) Schedule();
+            }
+            FeatureInstaller.Changed += OnInstaller;
+            OnInstaller();
+            return new Unsubscribe(() => FeatureInstaller.Changed -= OnInstaller);
+        });
         return host;
     }
 
-    private static FrameworkElement BuildContent(Action rerender)
+    private sealed class Unsubscribe(Action action) : IDisposable
     {
+        public void Dispose() => action();
+    }
+
+    /// <summary>"Installing Screenshot… 12 of 83" with a bar, shown while the installer works.</summary>
+    private sealed class InstallProgress : Border
+    {
+        private readonly TextBlock _text = Ui.Text(string.Empty, 13, brush: "TextSecondary");
+        private readonly ProgressBar _bar = new() { Minimum = 0 };
+        private readonly List<UIElement> _locked = [];
+
+        public InstallProgress()
+        {
+            Child = Ui.Stack(6, _text, _bar);
+            Update();
+        }
+
+        /// <summary>Controls that stay off while the installer works (the page is rebuilt, and they are right again, at the end).</summary>
+        public void Lock(params UIElement[] controls) => _locked.AddRange(controls);
+
+        public void Update()
+        {
+            Visibility = FeatureInstaller.Busy ? Visibility.Visible : Visibility.Collapsed;
+            if (FeatureInstaller.Busy) foreach (var control in _locked) control.IsEnabled = false;
+            _bar.Maximum = Math.Max(1, FeatureInstaller.Total);
+            _bar.Value = FeatureInstaller.Done;
+            _text.Text = $"{FeatureInstaller.Status}…  {FeatureInstaller.Done} of {FeatureInstaller.Total}";
+        }
+    }
+
+    private static FrameworkElement BuildContent(Action rerender, out InstallProgress progress)
+    {
+        progress = new InstallProgress();
         var tab = Settings.GetString(TabKey, "features");
         var installed = FeatureCatalog.All.Count(f => f.IsAvailable);
 
@@ -76,13 +118,15 @@ public static class FeatureHubPage
         if (tab == "features")
         {
             Ui.Append(headerContent, 12, Ui.Caption("Install only what you use. Whatever you uninstall disappears from the whole app and stops loading.", 13.5));
-            var installAll = Ui.Button("Install all", () => FeatureRuntime.SetAvailability(FeatureCatalog.All.Select(f => f.Id), true));
-            var uninstallAll = Ui.Button("Uninstall all", () => FeatureRuntime.SetAvailability(FeatureCatalog.All.Select(f => f.Id), false));
-            installAll.IsEnabled = installed < FeatureCatalog.All.Count;
-            uninstallAll.IsEnabled = installed > 0;
+            var installAll = Ui.Button("Install all", () => FeatureInstaller.Run(FeatureCatalog.All.Select(f => (f.Id, true))));
+            var uninstallAll = Ui.Button("Uninstall all", () => FeatureInstaller.Run(FeatureCatalog.All.Select(f => (f.Id, false))));
+            installAll.IsEnabled = installed < FeatureCatalog.All.Count && !FeatureInstaller.Busy;
+            uninstallAll.IsEnabled = installed > 0 && !FeatureInstaller.Busy;
             Ui.Append(headerContent, 12, Ui.Split(
                 Ui.Text($"{installed} of {FeatureCatalog.All.Count} features installed", 13, brush: "TextTertiary"),
                 Ui.Row(8, installAll, uninstallAll)));
+            Ui.Append(headerContent, 12, progress);
+            progress.Lock(installAll, uninstallAll);
         }
         else
         {
@@ -179,6 +223,7 @@ public static class FeatureHubPage
                      f.Beta ? Ui.Badge("Experimental", "AccentSubtle", "Accent") : null,
                      f.Extra ? Ui.Badge("Fieldkit extra", "AccentSubtle", "Accent") : null,
                      StatusBadge(claim),
+                     f.IsAvailable ? InstalledBadge(f.Id) : null,
                  })
         {
             if (part is not FrameworkElement fe) continue;
@@ -189,9 +234,17 @@ public static class FeatureHubPage
         var text = Ui.Stack(3, titleRow, Ui.Caption(f.Description, 13));
         text.Margin = new Thickness(12, 0, 0, 0);
 
-        var button = f.IsAvailable
-            ? Ui.Button("Uninstall", () => f.SetAvailable(false))
-            : Ui.Button("Install", () => f.SetAvailable(true), accent: true);
+        // The button answers at once; the installer then works through its queue and the page is rebuilt when it is done.
+        Button button = null!;
+        void Change(bool available)
+        {
+            button.IsEnabled = false;
+            button.Content = available ? "Installing…" : "Uninstalling…";
+            FeatureInstaller.Run([(f.Id, available)]);
+        }
+        button = f.IsAvailable
+            ? Ui.Button("Uninstall", () => Change(false))
+            : Ui.Button("Install", () => Change(true), accent: true);
         button.MinWidth = 96;
         System.Windows.Automation.AutomationProperties.SetAutomationId(button, "feature:" + f.Id);
 
@@ -210,10 +263,21 @@ public static class FeatureHubPage
         return row;
     }
 
+    /// <summary>Green "Installed" next to the name (the website's demo hides it for features it uninstalls).</summary>
+    private static Border InstalledBadge(string featureId)
+    {
+        var badge = Ui.Badge("Installed", "GreenSubtle", "Green");
+        var id = "installed:" + featureId;
+        System.Windows.Automation.AutomationProperties.SetAutomationId(badge, id);
+        if (badge.Child is DependencyObject text) System.Windows.Automation.AutomationProperties.SetAutomationId(text, id);
+        return badge;
+    }
+
+    // "Partial" only said that the macOS app has options Fieldkit lacks; beside every feature it read like an install
+    // state. That detail stays in the info tooltip; the badges here are for what the user can act on.
     private static UIElement? StatusBadge(ParityClaim? claim) => claim?.Parity switch
     {
         null or Parity.Planned => Ui.Badge("Not built yet", "BadgeBackground", "Orange"),
-        Parity.Partial => Ui.Badge("Partial", "BadgeBackground", "Yellow"),
         Parity.Native => Ui.Badge("Built into Windows", "BadgeBackground", "Cyan"),
         _ => null,
     };
