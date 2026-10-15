@@ -18,12 +18,23 @@ public static class FeatureRuntime
     /// <summary>Raised on the UI thread after a feature is installed or uninstalled.</summary>
     public static event Action? AvailabilityChanged;
 
-    private static bool _initialized;
+    private static volatile bool _initialized;
+    private static readonly object InitializeLock = new();
 
     public static void Initialize()
     {
         if (_initialized) return;
-        _initialized = true;
+        // A second thread (the tests share this registry) waits here until registration is complete, instead of
+        // seeing a half-filled registry; the same thread re-entering gets through.
+        lock (InitializeLock) Register();
+    }
+
+    private static bool _registering;
+
+    private static void Register()
+    {
+        if (_initialized || _registering) return;
+        _registering = true;
         var moduleTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => typeof(IFeatureModule).IsAssignableFrom(t) && t is { IsAbstract: false, IsInterface: false })
             .OrderBy(t => t.FullName, StringComparer.Ordinal);
@@ -46,6 +57,7 @@ public static class FeatureRuntime
 
         Log.Info($"Registered {Slots.Count} services, {Registry.PanelSections.Count} panel sections, " +
                  $"{Registry.SettingsPages.Count} settings pages");
+        _initialized = true;
     }
 
     public static void Start()

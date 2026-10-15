@@ -15,7 +15,6 @@ public partial class App : Application
 {
     private const string InstanceMutexName = @"Local\Fieldkit.SingleInstance";
     private const string ShowEventName = @"Local\Fieldkit.ShowPanel";
-    private const string FirstRunKey = "app.firstRunDone";
 
     private Mutex? _instanceMutex;
     private EventWaitHandle? _showEvent;
@@ -219,7 +218,6 @@ public partial class App : Application
 
         Log.Info($"{AppInfo.Name} {AppInfo.Version} starting");
         ThemeManager.Initialize();
-        FirstRun();
         FeatureRuntime.Initialize();
 
         _panel = new PanelWindow();
@@ -275,18 +273,6 @@ public partial class App : Application
             _tray.ShowBalloon($"{AppInfo.Name} is running", "Click the icon in the notification area to open the panel.", false);
             OpenSettings("features");
         }
-    }
-
-    /// <summary>A clean install starts from the small Essentials set, like upstream.</summary>
-    private static void FirstRun()
-    {
-        if (Settings.GetBool(FirstRunKey, false)) return;
-        var essentials = FeatureBundle.All.First(b => b.Id == "essential").Features;
-        foreach (var f in FeatureCatalog.All)
-        {
-            if (!Settings.Has(f.AvailabilityKey)) f.SetAvailable(essentials.Contains(f.Id));
-        }
-        Settings.Set(FirstRunKey, true);
     }
 
     public void OpenSettings(string? pageId)

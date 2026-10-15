@@ -9,6 +9,9 @@ All notable changes are listed here. Versions follow [semantic versioning](https
   Fieldkit button. Choose "Top of the screen" in Settings → Dynamic Island → Where, or turn it off there.
   Its settings page and feature description now say so too. While the island is open, its pill stays in the
   taskbar; click it to close the island.
+- **A clean install starts with every feature installed** (except the experimental ones and Fieldkit's six
+  extras, which stay one click away in Settings → Features), instead of only the Essentials bundle. Existing
+  installs keep the features they chose.
 - **Installing features shows progress.** Install, Uninstall, "Install all" and the bundles work through the
   features one at a time with a progress bar ("Installing Screenshot… 12 of 83") and a note when they are done,
   and the button answers at once with "Installing…". Installed features carry a green "Installed" badge; the

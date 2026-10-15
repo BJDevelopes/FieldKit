@@ -52,8 +52,9 @@ Requires Windows 10 2004+ and the [.NET 8 SDK](https://dotnet.microsoft.com/down
 dotnet run --project src/Fieldkit
 ```
 
-Click the tray icon to open the panel; right-click it for Settings and Quit. A first start installs
-the Essentials bundle (volume mixer, system monitor, keep awake, and the Dynamic Island in the taskbar); Settings → Features installs the rest.
+Click the tray icon to open the panel; right-click it for Settings and Quit. Everything is installed from
+the first start (apart from experimental features and Fieldkit's own extras); Settings → Features uninstalls what you don't use, or
+applies a bundle such as Essentials.
 
 `./build.ps1` runs the Release build, all tests and the app's selftest; `./build.ps1 -Publish` also
 produces a self-contained single-file `artifacts/win-x64/Fieldkit.exe` (no .NET needed; about 40 MB of memory when idle).
