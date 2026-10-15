@@ -3,7 +3,14 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
-## Unreleased
+## 0.2.0 (2026-10-15)
+
+- **Join meetings from the Dynamic Island:** calendar events with a Teams, Zoom, Google Meet, Webex, GoTo,
+  Whereby or Jitsi link get a Join button, and the island says so a minute before the meeting starts.
+- **Keep awake while AI agents work:** a new automation keeps the PC awake while Claude Code, Codex,
+  OpenCode or Copilot is working (it follows the island's AI agents section).
+- **Screenshot editor:** a Spotlight tool dims everything outside the boxes you draw, and a Copy text tool
+  copies the text in the box you drag (blurred areas stay hidden).
 
 New Fieldkit extras (they start uninstalled; add them in Settings → Features):
 
@@ -55,5 +62,8 @@ mapped to Windows 10 and 11 behind one notification-area icon.
   survive sleep and unlock, remapped mouse buttons reaching Fieldkit's own shortcuts, shelf false
   triggers, smooth scrolling that stays in its window, Office clipboard copies kept as text, no cloud
   file downloads while scanning. See [docs/UPSTREAM-ISSUES.md](docs/UPSTREAM-ISSUES.md).
+
+- **Light on memory:** about 40 MB idle, and it starts in under a second. Downloads are zips with a
+  single `Fieldkit.exe` inside.
 
 See [the parity map](docs/PARITY.md) for exactly how each feature compares with the original.

@@ -598,9 +598,22 @@ public static class IslandPages
         var g = new Grid();
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         g.Children.Add(bar);
         Grid.SetColumn(text, 1);
         g.Children.Add(text);
+        // Online meetings (upstream #2580): Join from 15 minutes before until the end; only known meeting services' https links.
+        if (e.Meeting is { } meeting && e.End > now)
+        {
+            FrameworkElement side = MeetingLinks.IsJoinable(e, now)
+                ? IslandUi.Pill("Join", () => IslandLinks.OpenWeb(meeting.Url), IslandPalette.Text, IslandPalette.Pink, Glyphs.Video)
+                : IslandUi.Icon(Glyphs.Video, 13, IslandPalette.Secondary);
+            side.ToolTip = $"{meeting.Provider} meeting";
+            side.VerticalAlignment = VerticalAlignment.Center;
+            side.Margin = new Thickness(8, 0, 0, 0);
+            Grid.SetColumn(side, 2);
+            g.Children.Add(side);
+        }
         var card = new Border
         {
             CornerRadius = new CornerRadius(10),

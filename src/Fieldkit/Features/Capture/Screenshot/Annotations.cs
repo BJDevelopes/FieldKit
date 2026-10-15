@@ -7,6 +7,10 @@ namespace Fieldkit.Features.Capture;
 public enum AnnotationTool
 {
     Select, Arrow, Pixelate, Crop, Text, Sticker, Rect, Highlight, Freehand, Line, Ellipse, Counter, Redact,
+    /// <summary>Dims everything outside the box (upstream #3067).</summary>
+    Spotlight,
+    /// <summary>Not a mark: the text in the dragged box is recognised and copied.</summary>
+    CopyText,
 }
 
 public enum AnnotationColor { Red, Orange, Yellow, Green, Blue, Purple, Black, White }
@@ -77,7 +81,8 @@ public static class AnnotationMath
 
     /// <summary>Tools that create their mark by dragging a rectangle.</summary>
     public static bool DragsRect(AnnotationTool tool) =>
-        tool is AnnotationTool.Rect or AnnotationTool.Ellipse or AnnotationTool.Highlight or AnnotationTool.Pixelate or AnnotationTool.Redact;
+        tool is AnnotationTool.Rect or AnnotationTool.Ellipse or AnnotationTool.Highlight or AnnotationTool.Pixelate or AnnotationTool.Redact
+            or AnnotationTool.Spotlight or AnnotationTool.CopyText;
 
     /// <summary>sRGB components (upstream ColorID), shared by drawing and export.</summary>
     public static (byte R, byte G, byte B) Rgb(AnnotationColor color) => color switch

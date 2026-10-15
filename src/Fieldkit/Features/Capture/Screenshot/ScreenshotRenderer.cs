@@ -66,9 +66,27 @@ public static class ScreenshotRenderer
         foreach (var a in annotations) DrawAnnotation(dc, a, scale, shadows);
     }
 
+    /// <summary>
+    /// The spotlight layer: one dim veil over the picture with every spotlight box cut out of it, so several
+    /// spotlights add up instead of darkening each other.
+    /// </summary>
+    public static void DrawSpotlights(DrawingContext dc, IEnumerable<Annotation> annotations, double width, double height, double scale)
+    {
+        var holes = annotations.Where(a => a.Tool == AnnotationTool.Spotlight && a.Bounds.Width > 0 && a.Bounds.Height > 0).ToList();
+        if (holes.Count == 0) return;
+        var radius = 6 * Math.Max(1, scale);
+        Geometry veil = new RectangleGeometry(new Rect(0, 0, width, height));
+        foreach (var hole in holes) veil = new CombinedGeometry(GeometryCombineMode.Exclude, veil, new RectangleGeometry(hole.Bounds, radius, radius));
+        dc.DrawGeometry(new SolidColorBrush(Color.FromArgb(SpotlightDim, 0, 0, 0)), null, veil);
+    }
+
+    /// <summary>How dark the area outside a spotlight gets (0–255).</summary>
+    public const byte SpotlightDim = 150;
+
     public static void DrawAnnotation(DrawingContext dc, Annotation a, double scale, bool shadows)
     {
-        if (a.Tool == AnnotationTool.Pixelate) return; // burnt into the base
+        // Burnt into the base, drawn as one layer, or never drawn.
+        if (a.Tool is AnnotationTool.Pixelate or AnnotationTool.Spotlight or AnnotationTool.CopyText) return;
         var shadow = shadows || a.Shadow;
         if (shadow && a.Tool is not AnnotationTool.Highlight)
         {
@@ -270,6 +288,7 @@ public static class ScreenshotRenderer
             dc.PushClip(new RectangleGeometry(card, radius, radius));
             dc.PushTransform(new TranslateTransform(pad, pad));
             dc.DrawImage(baseImage, new Rect(0, 0, width, height));
+            DrawSpotlights(dc, annotations, width, height, scale);
             DrawAnnotations(dc, annotations, scale, shadows);
             drawOverlay?.Invoke(dc);
             dc.Pop();
@@ -278,6 +297,7 @@ public static class ScreenshotRenderer
         else
         {
             dc.DrawImage(baseImage, new Rect(0, 0, width, height));
+            DrawSpotlights(dc, annotations, width, height, scale);
             DrawAnnotations(dc, annotations, scale, shadows);
             drawOverlay?.Invoke(dc);
         }

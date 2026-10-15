@@ -32,6 +32,7 @@ public sealed class KeepAwakeService : FeatureService
     public const string AutoExternalDisplayKey = "keepAwake.autoExternalDisplay";
     public const string AutoPowerKey = "keepAwake.autoPower";
     public const string AutoAppsKey = "keepAwake.autoApps";
+    public const string AutoAgentsKey = "keepAwake.autoAgents";
     public const string AppsKey = "keepAwake.apps";
     public const string RequireAllKey = "keepAwake.requireAll";
     public const string PauseWhenLockedKey = "keepAwake.pauseWhenLocked";
@@ -92,7 +93,7 @@ public sealed class KeepAwakeService : FeatureService
         _subscriptions.Add(Hotkeys.Bind(ShortcutKey, DefaultShortcut, Toggle));
         _subscriptions.Add(Settings.Observe(OnOptionsChanged, AllowDisplaySleepKey, JiggleKey, JiggleIntervalKey,
             BatteryLimitKey, PauseWhenLockedKey, LidClosedKey, DimOnLidCloseKey));
-        _subscriptions.Add(Settings.Observe(AutomationPreferencesChanged, AutoExternalDisplayKey, AutoPowerKey, AutoAppsKey, AppsKey, RequireAllKey));
+        _subscriptions.Add(Settings.Observe(AutomationPreferencesChanged, AutoExternalDisplayKey, AutoPowerKey, AutoAppsKey, AutoAgentsKey, AppsKey, RequireAllKey));
         SystemEvents.SessionSwitch += OnSessionSwitch;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
         SystemEvents.DisplaySettingsChanged += OnDisplaysChanged;
@@ -443,6 +444,7 @@ public sealed class KeepAwakeService : FeatureService
         if (Settings.GetBool(AutoExternalDisplayKey, false)) c |= AwakeCondition.ExternalDisplay;
         if (Settings.GetBool(AutoPowerKey, false)) c |= AwakeCondition.Power;
         if (Settings.GetBool(AutoAppsKey, false) && SelectedApps().Count > 0) c |= AwakeCondition.RunningApps;
+        if (Settings.GetBool(AutoAgentsKey, false)) c |= AwakeCondition.AgentsWorking;
         return c;
     }
 
@@ -458,7 +460,24 @@ public sealed class KeepAwakeService : FeatureService
             matching |= AwakeCondition.Power;
         if (enabled.HasFlag(AwakeCondition.RunningApps) && AppsRunning())
             matching |= AwakeCondition.RunningApps;
+        if (enabled.HasFlag(AwakeCondition.AgentsWorking) && AgentsWorking())
+            matching |= AwakeCondition.AgentsWorking;
         return (enabled, matching);
+    }
+
+    private static DateTime? _agentWorkSeen;
+
+    /// <summary>
+    /// Live work as the Dynamic Island's AI agents section sees it (Claude Code, Codex, OpenCode, Copilot from their
+    /// local logs). Without that section running nothing is known, so this never matches.
+    /// </summary>
+    public static bool AgentTrackingAvailable => Features.Island.IslandHub.Agents is not null;
+
+    private static bool AgentsWorking()
+    {
+        var now = DateTime.UtcNow;
+        if (Features.Island.IslandHub.Agents?.Snapshot is { Live.Count: > 0 }) _agentWorkSeen = now;
+        return KeepAwakeLogic.AgentsWorking(_agentWorkSeen, now);
     }
 
     private static bool AppsRunning()

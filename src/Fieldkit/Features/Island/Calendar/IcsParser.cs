@@ -12,7 +12,8 @@ public sealed record CalendarEvent(
     bool IsAllDay,
     string? Location = null,
     string? CalendarName = null,
-    string? Url = null)
+    string? Url = null,
+    MeetingLink? Meeting = null)
 {
     public bool IsOngoing(DateTime now) => Start <= now && now < End;
 }
@@ -30,6 +31,8 @@ public static class IcsParser
         public string Summary = string.Empty;
         public string? Location;
         public string? Url;
+        public string? Description;
+        public string? Conference;
         public string? Uid;
         public string? RecurrenceId;
         public DateTime? Start;
@@ -56,6 +59,7 @@ public static class IcsParser
             var length = e.End is { } end ? end - start : e.Duration ?? (e.AllDay ? TimeSpan.FromDays(1) : TimeSpan.Zero);
             if (length < TimeSpan.Zero) length = TimeSpan.Zero;
             var title = e.Summary.Length > 0 ? e.Summary : "Untitled event";
+            var meeting = MeetingLinks.Find(e.Conference, e.Url, e.Location, e.Description);
 
             IEnumerable<DateTime> starts = e.RRule is { Length: > 0 } && e.RecurrenceId is null
                 ? Expand(start, e.RRule, from - length, to)
@@ -68,7 +72,7 @@ public static class IcsParser
                 var occEnd = s + length;
                 var overlaps = occEnd > from && s < to || length == TimeSpan.Zero && s >= from && s < to;
                 if (!overlaps) continue;
-                result.Add(new CalendarEvent(title, s, occEnd, e.AllDay, e.Location, calendarName, e.Url));
+                result.Add(new CalendarEvent(title, s, occEnd, e.AllDay, e.Location, calendarName, e.Url, meeting));
             }
         }
         return result.OrderBy(r => r.Start).ThenBy(r => r.Title, StringComparer.CurrentCulture).ToList();
@@ -107,6 +111,12 @@ public static class IcsParser
                 case "LOCATION": current.Location = Unescape(value); break;
                 // Outside data: keep only absolute http(s)/mailto links.
                 case "URL": current.Url = IslandLinks.SafeWebUri(value)?.AbsoluteUri; break;
+                // Only searched for a meeting link (MeetingLinks); the text itself is not kept.
+                case "DESCRIPTION": current.Description = Unescape(value); break;
+                // Google's and Microsoft's own conference fields.
+                case "X-GOOGLE-CONFERENCE" or "X-MICROSOFT-SKYPETEAMSMEETINGURL" or "X-MICROSOFT-ONLINEMEETINGCONFLINK":
+                    current.Conference ??= value.Trim();
+                    break;
                 case "UID": current.Uid = value; break;
                 case "STATUS": current.Cancelled = value.Equals("CANCELLED", StringComparison.OrdinalIgnoreCase); break;
                 case "RRULE": current.RRule = value; break;

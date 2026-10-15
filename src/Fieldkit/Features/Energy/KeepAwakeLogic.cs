@@ -9,6 +9,8 @@ public enum AwakeCondition
     ExternalDisplay = 1,
     Power = 2,
     RunningApps = 4,
+    /// <summary>An AI coding agent is working (a Fieldkit addition, upstream #3001).</summary>
+    AgentsWorking = 8,
 }
 
 public enum AutomationAction { None, Activate, Deactivate }
@@ -132,8 +134,15 @@ public static class KeepAwakeLogic
         AwakeCondition.ExternalDisplay => "Active while an external display is connected",
         AwakeCondition.Power => "Active while connected to power",
         AwakeCondition.RunningApps => "Active while a selected app is running",
+        AwakeCondition.AgentsWorking => "Active while an AI agent is working",
         _ => "Active because an automatic condition is met",
     };
+
+    /// <summary>An agent's turns come with short pauses between them (a tool runs, the next turn starts): stay awake this long after the last work seen.</summary>
+    public static readonly TimeSpan AgentGrace = TimeSpan.FromMinutes(2);
+
+    public static bool AgentsWorking(DateTime? lastWorkSeen, DateTime now) =>
+        lastWorkSeen is { } seen && now - seen <= AgentGrace;
 
     /// <summary>Normalises an app entry to a lower-case process name without ".exe".</summary>
     public static string ProcessKey(string entry)

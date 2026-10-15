@@ -168,8 +168,10 @@ public static class IslandPreview
         var local = Now.LocalDateTime;
         var events = new List<CalendarEvent>
         {
-            new("Design review", local.AddMinutes(-20), local.AddMinutes(25), false, "Room 4", "Work"),
-            new("1:1 with Sam", local.AddHours(1), local.AddHours(1.5), false, null, "Work"),
+            new("Design review", local.AddMinutes(-20), local.AddMinutes(25), false, "Room 4", "Work",
+                Meeting: new MeetingLink("Teams", "https://teams.microsoft.com/l/meetup-join/sample")),
+            new("1:1 with Sam", local.AddHours(1), local.AddHours(1.5), false, null, "Work",
+                Meeting: new MeetingLink("Zoom", "https://example.zoom.us/j/123456789")),
             new("Dentist", local.Date.AddDays(1).AddHours(9), local.Date.AddDays(1).AddHours(10), false, "Main St", "Personal"),
             new("Holiday", local.Date.AddDays(2), local.Date.AddDays(3), true, null, "Personal"),
         };

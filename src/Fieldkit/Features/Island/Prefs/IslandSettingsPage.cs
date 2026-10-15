@@ -233,7 +233,9 @@ public static class IslandSettingsPage
             Ui.ToggleRow("Event countdown", "Show every timed event in the closed island during the hour before it starts. Titles may appear in screen captures.",
                 IslandKeys.CalendarCountdown, false),
             Ui.ToggleRow("Time left in current event", "Show a timed event in progress in the closed island during the hour before it ends. Its title may appear in screen captures.",
-                IslandKeys.CalendarTimeLeft, false));
+                IslandKeys.CalendarTimeLeft, false),
+            Ui.ToggleRow("Remind me to join online meetings", "A minute before a Teams, Zoom, Meet or Webex meeting starts, the island says so; click it to join. " +
+                "Events with a meeting link get a Join button.", IslandKeys.CalendarMeetingNotice, true));
     }
 
     private static FrameworkElement Timer() => Ui.Group("Timer",

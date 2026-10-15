@@ -48,6 +48,7 @@ public static class IslandKeys
     public const string CalendarFeeds = "notchCalendar.feeds";              // newline separated ICS URLs or files
     public const string CalendarCountdown = "notchCalendar.countdown";
     public const string CalendarTimeLeft = "notchCalendar.timeLeft";
+    public const string CalendarMeetingNotice = "notchCalendar.meetingNotice";
     public const string CalendarWeekNumbers = "notchCalendar.weekNumbers";
 
     public const string GesturesEnabled = "notchGestures.enabled";

@@ -171,7 +171,9 @@ public sealed class ScreenshotEditorWindow : Window
 
     internal void Draw(DrawingContext dc)
     {
-        ScreenshotRenderer.DrawComposition(dc, _redactedSource, _base.Width, _base.Height, _marks, _base.Scale, Shadows, Backdrop, Watermark, DrawOverlay);
+        // A spotlight being dragged already darkens the picture around it.
+        IReadOnlyList<Annotation> marks = _draft is { Tool: AnnotationTool.Spotlight } spot ? [.. _marks, spot] : _marks;
+        ScreenshotRenderer.DrawComposition(dc, _redactedSource, _base.Width, _base.Height, marks, _base.Scale, Shadows, Backdrop, Watermark, DrawOverlay);
     }
 
     private void DrawOverlay(DrawingContext dc)
@@ -181,6 +183,8 @@ public sealed class ScreenshotEditorWindow : Window
         {
             if (_draft.Tool == AnnotationTool.Pixelate)
                 dc.DrawRectangle(new SolidColorBrush(Color.FromArgb(70, 120, 120, 120)), new Pen(Brushes.White, 1 * scale) { DashStyle = DashStyles.Dash }, _draft.Bounds);
+            else if (_draft.Tool == AnnotationTool.CopyText)
+                dc.DrawRectangle(new SolidColorBrush(Color.FromArgb(40, 46, 140, 255)), new Pen(new SolidColorBrush(Color.FromRgb(46, 140, 255)), 1.5 * scale) { DashStyle = DashStyles.Dash }, _draft.Bounds);
             else
                 ScreenshotRenderer.DrawAnnotation(dc, _draft, _base.Scale, Shadows);
         }
@@ -232,6 +236,8 @@ public sealed class ScreenshotEditorWindow : Window
         AnnotationTool.Line => "\uE738",
         AnnotationTool.Ellipse => "\uEA3A",
         AnnotationTool.Counter => "\uF146",
+        AnnotationTool.Spotlight => "\uEA80", // Lightbulb
+        AnnotationTool.CopyText => Glyphs.TextScan,
         _ => "\uE73B",
     };
 
@@ -249,6 +255,8 @@ public sealed class ScreenshotEditorWindow : Window
         AnnotationTool.Line => "Line",
         AnnotationTool.Ellipse => "Ellipse",
         AnnotationTool.Counter => "Number",
+        AnnotationTool.Spotlight => "Spotlight",
+        AnnotationTool.CopyText => "Copy text",
         _ => "Solid block",
     };
 
@@ -304,7 +312,8 @@ public sealed class ScreenshotEditorWindow : Window
             row.Children.Add(e);
         }
         var tool = _selected?.Tool ?? _tool;
-        var usesColor = tool is not (AnnotationTool.Pixelate or AnnotationTool.Crop or AnnotationTool.Select or AnnotationTool.Sticker or AnnotationTool.Redact);
+        var usesColor = tool is not (AnnotationTool.Pixelate or AnnotationTool.Crop or AnnotationTool.Select or AnnotationTool.Sticker or AnnotationTool.Redact
+            or AnnotationTool.Spotlight or AnnotationTool.CopyText);
         if (usesColor) Add(Labeled("Color", ColorSwatches()));
         if (tool is AnnotationTool.Arrow or AnnotationTool.Line or AnnotationTool.Rect or AnnotationTool.Ellipse or AnnotationTool.Freehand)
             Add(Labeled("Thickness", StrokePicker()));
@@ -328,7 +337,9 @@ public sealed class ScreenshotEditorWindow : Window
                 SelectTool(AnnotationTool.Arrow);
             }));
         }
-        if (tool is not (AnnotationTool.Crop or AnnotationTool.Pixelate or AnnotationTool.Select))
+        if (tool == AnnotationTool.Spotlight) Add(Ui.Caption("Drag over what matters; everything else is dimmed. Draw more than one to light several areas."));
+        if (tool == AnnotationTool.CopyText) Add(Ui.Caption("Drag over the text you want and it is copied. Blurred areas stay hidden."));
+        if (tool is not (AnnotationTool.Crop or AnnotationTool.Pixelate or AnnotationTool.Select or AnnotationTool.Spotlight or AnnotationTool.CopyText))
         {
             var shadows = new CheckBox { Content = Ui.Text("Shadows", 13), IsChecked = Shadows, VerticalAlignment = VerticalAlignment.Center };
             shadows.Click += (_, _) =>
@@ -709,6 +720,12 @@ public sealed class ScreenshotEditorWindow : Window
         var draft = _draft;
         _draft = null;
         if (draft is null) return;
+        if (draft.Tool == AnnotationTool.CopyText)
+        {
+            _canvas.InvalidateVisual();
+            if (!AnnotationMath.IsTap(_dragStart, p)) CopyTextFrom(draft.Bounds);
+            return;
+        }
         var tap = draft.Tool == AnnotationTool.Freehand
             ? draft.Points.Count < 3 && AnnotationMath.IsTap(_dragStart, p)
             : AnnotationMath.IsTap(_dragStart, p);
@@ -929,6 +946,19 @@ public sealed class ScreenshotEditorWindow : Window
         RebuildInspector();
     }
 
+    /// <summary>
+    /// Recognises the text in one box of the screenshot and copies it. Blur marks are applied first, so
+    /// text someone hid cannot be copied back out of the picture.
+    /// </summary>
+    private void CopyTextFrom(Rect box)
+    {
+        var rect = new PixelRect((int)Math.Floor(box.X), (int)Math.Floor(box.Y), (int)Math.Ceiling(box.Width), (int)Math.Ceiling(box.Height))
+            .Intersect(new PixelRect(0, 0, _base.Width, _base.Height));
+        if (rect.Width < 4 || rect.Height < 4) return;
+        var area = ScreenshotRenderer.ApplyRedactions(_base, _marks).Crop(rect);
+        ScreenTextService.Recognize(area, fromEditor: true);
+    }
+
     private void ApplyCrop()
     {
         if (_crop is not { } crop) return;
@@ -1140,7 +1170,7 @@ public sealed class ScreenshotEditorWindow : Window
     }
 
     /// <summary>Renders the editor with sample marks to a PNG (developer preview, used by tests).</summary>
-    public static void RenderPreview(string path, RasterImage sample)
+    public static void RenderPreview(string path, RasterImage sample, bool spotlight = false)
     {
         var editor = new ScreenshotEditorWindow(sample) { _unsaved = false, Left = -20000, Top = -20000, ShowActivated = false };
         var s = Math.Max(1, sample.Scale);
@@ -1155,6 +1185,7 @@ public sealed class ScreenshotEditorWindow : Window
         var text = new Annotation { Tool = AnnotationTool.Text, Text = "Click here", Color = AnnotationColor.Green };
         text.Bounds = editor.TextBounds(text, new Point(70 * s, 240 * s));
         editor._marks.Add(text);
+        if (spotlight) editor._marks.Insert(0, new Annotation { Tool = AnnotationTool.Spotlight, Bounds = new Rect(230 * s, 30 * s, 180 * s, 110 * s) });
         editor.RefreshRedactions();
         editor.Show();
         editor.UpdateLayout();

@@ -10,7 +10,7 @@ public enum IslandActivity { Timer, Watch, Downloads, Agents, Calendar, Music, K
 public enum IslandIdleContent { None, Battery, Music, Agents }
 
 /// <summary>Transient notices (upstream NotchNotice events).</summary>
-public enum IslandNoticeEvent { Volume, Brightness, Capture, Timer, Watch, Battery, SystemNotification, Accessory, Agents, Clipboard, Download, Track }
+public enum IslandNoticeEvent { Volume, Brightness, Capture, Timer, Watch, Battery, SystemNotification, Accessory, Agents, Clipboard, Download, Track, Meeting }
 
 /// <summary>A notice shown briefly in the closed island.</summary>
 /// <param name="Level">0..1 for level notices (volume) and accessory batteries.</param>
@@ -125,7 +125,7 @@ public static class IslandLogic
     public static int Priority(IslandNoticeEvent e) => e switch
     {
         IslandNoticeEvent.Volume or IslandNoticeEvent.Brightness => 3,
-        IslandNoticeEvent.Capture or IslandNoticeEvent.Timer or IslandNoticeEvent.Watch => 2,
+        IslandNoticeEvent.Capture or IslandNoticeEvent.Timer or IslandNoticeEvent.Watch or IslandNoticeEvent.Meeting => 2,
         IslandNoticeEvent.Battery or IslandNoticeEvent.SystemNotification or IslandNoticeEvent.Accessory or IslandNoticeEvent.Agents => 1,
         _ => 0,
     };
@@ -139,6 +139,7 @@ public static class IslandLogic
         IslandNoticeEvent.SystemNotification or IslandNoticeEvent.Track => 3,
         IslandNoticeEvent.Agents => 5,
         IslandNoticeEvent.Clipboard => 2.5,
+        IslandNoticeEvent.Meeting => 20,
         _ => 3,
     });
 
@@ -158,6 +159,7 @@ public static class IslandLogic
         IslandNoticeEvent.Agents => "agents",
         IslandNoticeEvent.Track => "music",
         IslandNoticeEvent.Watch => "watch",
+        IslandNoticeEvent.Meeting => "calendar",
         _ => "controls",
     };
 

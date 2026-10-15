@@ -270,6 +270,7 @@ public static class KeepAwakeView
             if (enabled.HasFlag(AwakeCondition.ExternalDisplay)) row.Children.Add(Ui.Icon(Glyphs.Display, 11));
             if (enabled.HasFlag(AwakeCondition.Power)) row.Children.Add(Ui.Icon(Glyphs.Plug, 11));
             if (enabled.HasFlag(AwakeCondition.RunningApps)) row.Children.Add(Ui.Icon(Glyphs.Grid, 11));
+            if (enabled.HasFlag(AwakeCondition.AgentsWorking)) row.Children.Add(Ui.Icon(Glyphs.Robot, 11));
             if (pause) row.Children.Add(Ui.Icon(Glyphs.Lock, 11));
             host.Content = row;
         }
@@ -289,6 +290,7 @@ public static class KeepAwakeView
                 (Key: KeepAwakeService.AutoExternalDisplayKey, Glyph: Glyphs.Display, Title: "External display"),
                 (Key: KeepAwakeService.AutoPowerKey, Glyph: Glyphs.Plug, Title: "Power"),
                 (Key: KeepAwakeService.AutoAppsKey, Glyph: Glyphs.Grid, Title: "Applications"),
+                (Key: KeepAwakeService.AutoAgentsKey, Glyph: Glyphs.Robot, Title: "AI agents"),
             };
             var tiles = enabledFlags.Select(f =>
             {
@@ -303,7 +305,7 @@ public static class KeepAwakeView
                     ? "Starts only when every selected condition is active."
                     : "Starts when any selected condition is active."));
             }
-            Ui.Append(stack, 10, Ui.Columns(3, 8, tiles));
+            Ui.Append(stack, 10, Ui.Columns(compact ? 2 : tiles.Length, 8, tiles));
             if (selectedCount > 1)
             {
                 Ui.Append(stack, 10, EnergyUi.Segmented([("any", "Any"), ("all", "All")],
@@ -311,11 +313,17 @@ public static class KeepAwakeView
                     v => Settings.Set(KeepAwakeService.RequireAllKey, v == "all")));
             }
             if (Settings.GetBool(KeepAwakeService.AutoAppsKey, false)) Ui.Append(stack, 10, AppList());
+            if (Settings.GetBool(KeepAwakeService.AutoAgentsKey, false))
+            {
+                Ui.Append(stack, 10, Ui.Caption(KeepAwakeService.AgentTrackingAvailable
+                    ? "Stays awake while Claude Code, Codex, OpenCode or Copilot is working, and for two minutes after."
+                    : "Follows the AI agents section of the Dynamic Island, which is off. Turn it on in Settings → Dynamic Island.", 12));
+            }
             host.Content = stack;
         }
         Build();
         Ui.Track(host, () => Settings.Observe(Build, KeepAwakeService.AutoExternalDisplayKey, KeepAwakeService.AutoPowerKey,
-            KeepAwakeService.AutoAppsKey, KeepAwakeService.AppsKey, KeepAwakeService.RequireAllKey));
+            KeepAwakeService.AutoAppsKey, KeepAwakeService.AutoAgentsKey, KeepAwakeService.AppsKey, KeepAwakeService.RequireAllKey));
         return host;
     }
 

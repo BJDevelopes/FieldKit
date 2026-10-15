@@ -65,6 +65,7 @@ public static class Glyphs
     public const string Package = "\uE7B8";
     public const string Download = "\uE896";
     public const string Camera = "\uE722";
+    public const string Video = "\uE714";
     public const string Webcam = "\uE8B8";
     public const string Record = "\uE7C8";
     public const string Radial = "\uF1BE";

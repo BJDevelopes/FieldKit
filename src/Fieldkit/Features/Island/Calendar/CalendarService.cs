@@ -24,6 +24,7 @@ public sealed class CalendarService : IslandExtensionService
     private IDisposable? _observer;
     private CancellationTokenSource? _cts;
     private string? _lastBegins;
+    private readonly HashSet<string> _meetingNotified = [];
 
     public override string FeatureId => "notchCalendar";
     protected override string EnableKey => IslandKeys.CalendarEnabled;
@@ -144,6 +145,15 @@ public sealed class CalendarService : IslandExtensionService
         {
             _lastBegins = begins.Title + begins.Start;
             IslandHub.React(MascotEvent.CalendarEventBegins);
+        }
+        if (Settings.GetBool(IslandKeys.CalendarMeetingNotice, true))
+        {
+            foreach (var e in Events)
+            {
+                if (!MeetingLinks.IsStarting(e, now) || !_meetingNotified.Add(e.Title + e.Start.Ticks)) continue;
+                IslandHub.Post(new IslandNotice(IslandNoticeEvent.Meeting, e.Title, $"{e.Meeting!.Provider} · starting · click to join",
+                    Glyphs.Video, "Pink", OpenSection: "calendar"));
+            }
         }
         if (c != Countdown || c is not null)
         {
