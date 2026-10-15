@@ -29,11 +29,11 @@ public static class IslandSettingsPage
     {
         var open = Ui.Button("Open Dynamic Island", () => IslandHub.Open(), glyph: Glyphs.Island);
         var header = Ui.Group(null,
-            Ui.ToggleRow("Enable Dynamic Island", "Your music, controls and everyday tools, together at the top of your screen.", IslandKeys.Enabled, IslandDefaults.Enabled),
-            Ui.Split(Ui.Caption("Click the island at the top centre of the screen to open it. Drop files on it to keep them on its shelf."), open));
+            Ui.ToggleRow("Enable Dynamic Island", "Your music, controls and everyday tools, together in the taskbar or at the top of your screen.", IslandKeys.Enabled, IslandDefaults.Enabled),
+            Ui.Split(Ui.Caption("Click the island to open it; right-click it to move it or open the panel. Drop files on it to keep them on its shelf."), open));
 
         return Ui.Page("Dynamic Island",
-            "Your music, controls and everyday tools, together at the top of your screen. Optional. Turn it off to keep using the separate panels.",
+            "Your music, controls and everyday tools, together in the taskbar or at the top of your screen. Optional. Turn it off to keep using the separate panels.",
             header,
             Layout(),
             ContentEditor(),
@@ -199,7 +199,7 @@ public static class IslandSettingsPage
             Row("When reopening", null, reopenChoice),
             Ui.ToggleRow("Open the visible activity", "When the closed island shows music, a timer or another activity, it opens on that page instead.",
                 IslandKeys.OpensActivity, true),
-            Ui.ChoiceRow("Where", IslandKeys.Placement, [("top", "Top of the screen"), ("taskbar", "In the taskbar")], "top",
+            Ui.ChoiceRow("Where", IslandKeys.Placement, [("taskbar", "In the taskbar"), ("top", "Top of the screen")], "taskbar",
                 "In the taskbar it takes the Fieldkit button's spot next to the notification area and opens upward, so it never covers browser tabs. " +
                 "Right-click the island to switch."),
             Ui.ChoiceRow("Display", IslandKeys.Display, displays, IslandDefaults.Display),

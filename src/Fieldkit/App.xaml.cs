@@ -65,10 +65,20 @@ public partial class App : Application
             Shutdown(0);
             return;
         }
+        // The installer's uninstaller: take back what Fieldkit registered for this user (Start with Windows and
+        // the browser picker). Settings and histories stay in %APPDATA%\Fieldkit.
+        if (args.Contains("--uninstall-cleanup"))
+        {
+            LaunchAtLogin.Set(false);
+            try { Features.Launcher.BrowserPicker.Browsers.Unregister(); }
+            catch (Exception ex) { Log.Warn($"Removing the browser registration failed: {ex.Message}"); }
+            Shutdown(0);
+            return;
+        }
         // Only known switches start the app normally; anything else (a mistyped tooling command,
         // stray positional arguments) exits instead of launching hooks on the developer's desktop.
         string[] launchSwitches = ["--background", "--elevated-restart"];
-        string[] toolingSwitches = ["--render-ui", "--render-glyphs", "--render-glyph-range", "--write-icon", "--write-parity", "--selftest"];
+        string[] toolingSwitches = ["--render-ui", "--render-glyphs", "--render-glyph-range", "--write-icon", "--write-parity", "--selftest", "--export-site"];
         if (args.Contains("--list-actions"))
         {
             CommandChannel.AttachParentConsole();
@@ -126,7 +136,7 @@ public partial class App : Application
 
         // Developer tooling never falls through to a normal launch, even with malformed arguments.
         if (args.Any(a => a.StartsWith("--render-", StringComparison.Ordinal) || a is "--write-icon" or "--write-parity" or "--selftest")
-            && !args.Contains("--render-ui") && !args.Contains("--render-glyphs") && !args.Contains("--write-icon")
+            && !args.Contains("--render-ui") && !args.Contains("--render-glyphs") && !args.Contains("--write-icon") && !args.Contains("--export-site")
             && !args.Contains("--write-parity") && !args.Contains("--selftest") && !args.Contains("--render-glyph-range"))
         {
             Shutdown(2);
@@ -158,6 +168,20 @@ public partial class App : Application
         {
             var index = Array.IndexOf(args, "--render-glyphs");
             UiSnapshots.RenderGlyphSheet(index + 1 < args.Length ? args[index + 1] : "glyphs.png");
+            Shutdown(0);
+            return;
+        }
+        if (args.Contains("--export-site"))
+        {
+            // Developer tooling: the real UI as data for the project website (see SiteExport). Dark theme, everything installed.
+            var index = Array.IndexOf(args, "--export-site");
+            var dir = index + 1 < args.Length ? args[index + 1] : "site/data";
+            Settings.Set(ThemeManager.AppearanceKey, "dark");
+            foreach (var f in FeatureCatalog.All) f.SetAvailable(true);
+            ThemeManager.Initialize();
+            FeatureRuntime.Initialize();
+            SiteExport.Export(dir);
+            Settings.Flush();
             Shutdown(0);
             return;
         }

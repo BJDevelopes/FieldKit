@@ -26,6 +26,7 @@ public sealed class SettingsWindow : Window
         MinWidth = 760;
         MinHeight = 480;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        WindowFit.ToDisplay(this);
         FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI");
         SetResourceReference(BackgroundProperty, "WindowBackground");
         SetResourceReference(ForegroundProperty, "TextPrimary");
@@ -140,6 +141,22 @@ public sealed class SettingsWindow : Window
         bool Has(string s) => s.Contains(query, StringComparison.CurrentCultureIgnoreCase);
         return Has(page.Title) || (page.Keywords?.Any(Has) ?? false) ||
                page.FeatureGate.Any(id => FeatureCatalog.TryGet(id, out var f) && (Has(f.Title) || Has(f.Description)));
+    }
+
+    /// <summary>The open page's full content (inside its scroll area), for the site export.</summary>
+    internal FrameworkElement? PageContent
+    {
+        get
+        {
+            // Some pages (Features) wrap their scroll area in a host that rebuilds it; look through to the content.
+            var content = _content.Content;
+            while (true)
+            {
+                if (content is ScrollViewer scroll) content = scroll.Content;
+                else if (content is ContentControl { Content: ScrollViewer inner }) content = inner;
+                else return content as FrameworkElement;
+            }
+        }
     }
 
     public void Navigate(string pageId)

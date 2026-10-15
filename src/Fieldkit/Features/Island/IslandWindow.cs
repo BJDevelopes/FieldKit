@@ -33,6 +33,8 @@ public sealed class IslandWindow : Window
     private readonly IslandContext _ctx;
     private readonly Border _pill;
     private readonly ContentControl _content = new();
+    private readonly Border _stub;
+    private readonly ContentControl _stubContent = new();
     private readonly DispatcherTimer _hoverTimer = new(DispatcherPriority.Normal);
     private readonly DispatcherTimer _closeTimer = new(DispatcherPriority.Normal);
     private readonly DispatcherTimer _noticeTimer = new(DispatcherPriority.Normal);
@@ -50,6 +52,7 @@ public sealed class IslandWindow : Window
     private IslandNotice? _notice;
     private IslandActivity? _preferredActivity;
     private string? _collapsedSignature;
+    private string? _stubSignature;
     private (MascotReaction Reaction, double Until)? _cameo;
     private IntPtr _monitor;
     private TaskbarPlacement? _dock;
@@ -97,8 +100,22 @@ public sealed class IslandWindow : Window
             CornerRadius = new CornerRadius(IslandCollapsed.Height / 2),
             Cursor = Cursors.Hand,
         };
+        // In the taskbar the closed pill keeps its spot while the island is open, like a running app's button.
+        _stub = new Border
+        {
+            Background = IslandPalette.Background,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Child = _stubContent,
+            ClipToBounds = true,
+            Height = IslandCollapsed.Height,
+            CornerRadius = new CornerRadius(IslandCollapsed.Height / 2),
+            Cursor = Cursors.Hand,
+            Visibility = Visibility.Collapsed,
+        };
         var root = new Grid { Background = null };
         root.Children.Add(_pill);
+        root.Children.Add(_stub);
         Content = root;
 
         _hoverTimer.Tick += (_, _) =>
@@ -124,6 +141,10 @@ public sealed class IslandWindow : Window
         _pill.MouseLeave += (_, _) => OnHover(false);
         _pill.MouseLeftButtonUp += OnPillClick;
         _pill.MouseRightButtonUp += OnPillRightClick;
+        _stub.MouseEnter += (_, _) => OnHover(true);
+        _stub.MouseLeave += (_, _) => OnHover(false);
+        _stub.MouseLeftButtonUp += (_, e) => { Collapse(); e.Handled = true; };
+        _stub.MouseRightButtonUp += OnPillRightClick;
         _pill.MouseWheel += (_, e) => OnScroll(0, e.Delta, e.Timestamp, precise: e.Delta % Native.WHEEL_DELTA != 0);
         _pill.DragEnter += (_, e) =>
         {
@@ -254,8 +275,11 @@ public sealed class IslandWindow : Window
         return primary.Handle == IntPtr.Zero && monitors.Count > 0 ? (monitors[0].Handle, monitors[0].Bounds) : (primary.Handle, primary.Bounds);
     }
 
-    /// <summary>Asked to live in the taskbar (in the Fieldkit button's spot) rather than at the top of the screen.</summary>
-    private static bool WantsTaskbar => Settings.GetString(IslandKeys.Placement, "top") == "taskbar";
+    /// <summary>
+    /// In the taskbar (the Fieldkit button's spot) unless asked for the top of the screen: Windows has no notch area,
+    /// so at the top the island sits on window title bars and browser tabs.
+    /// </summary>
+    private static bool WantsTaskbar => Settings.GetString(IslandKeys.Placement, "taskbar") == "taskbar";
 
     private void Reposition()
     {
@@ -280,6 +304,7 @@ public sealed class IslandWindow : Window
             _restMargin = new Thickness(0, 0, ShadowMargin, Math.Max(2, (taskbarDip - IslandCollapsed.Height) / 2));
             _openMargin = new Thickness(0, 0, ShadowMargin, taskbarDip + 8);
             ApplyPillMargin();
+            RefreshStub(force: true);
             SetOwner(dock.Taskbar); // owned windows stay above the taskbar even when it is clicked
             var x = Math.Max(bounds.Left, dock.Bounds.Right + (int)Math.Round(ShadowMargin * scale) - w);
             Native.SetWindowPos(_hwnd, Native.HWND_TOPMOST, x, dock.Bounds.Bottom - h, w, h, Native.SWP_NOACTIVATE);
@@ -289,6 +314,7 @@ public sealed class IslandWindow : Window
         _pill.VerticalAlignment = VerticalAlignment.Top;
         _restMargin = _openMargin = new Thickness(0, TopGap, 0, 0);
         ApplyPillMargin();
+        RefreshStub(force: true);
         SetOwner(IntPtr.Zero);
         var left = bounds.Left + (bounds.Width - w) / 2;
         Native.SetWindowPos(_hwnd, Native.HWND_TOPMOST, left, bounds.Top, w, h, Native.SWP_NOACTIVATE);
@@ -405,10 +431,10 @@ public sealed class IslandWindow : Window
         e.Handled = true;
     }
 
-    /// <summary>Right-click on the closed island: choose which live activity it shows (upstream's picker).</summary>
+    /// <summary>Right-click on the closed island (or its taskbar spot while open): choose which live activity it shows (upstream's picker).</summary>
     private void OnPillRightClick(object sender, MouseButtonEventArgs e)
     {
-        if (_expanded) return;
+        if (_expanded && !ReferenceEquals(sender, _stub)) return;
         var activities = new List<IslandActivity>();
         var state = CurrentState();
         foreach (var a in Enum.GetValues<IslandActivity>())
@@ -433,7 +459,7 @@ public sealed class IslandWindow : Window
             () => Settings.Set(IslandKeys.Placement, inTaskbar ? "top" : "taskbar")));
         menu.Items.Add(MenuItem("Open Fieldkit panel", () => PanelHost.Show()));
         menu.Items.Add(MenuItem("Dynamic Island settings…", () => PanelHost.OpenSettings("island")));
-        menu.PlacementTarget = _pill;
+        menu.PlacementTarget = sender as UIElement ?? _pill;
         menu.Placement = _dock is not null ? System.Windows.Controls.Primitives.PlacementMode.Top : System.Windows.Controls.Primitives.PlacementMode.Bottom;
         menu.IsOpen = true;
         e.Handled = true;
@@ -506,10 +532,7 @@ public sealed class IslandWindow : Window
 
     // ------------------------------------------------------------------ hub events
 
-    private void OnHubChanged()
-    {
-        if (!_expanded) RefreshCollapsed(force: false);
-    }
+    private void OnHubChanged() => RefreshCollapsed(force: false);
 
     private void OnNotice(IslandNotice notice)
     {
@@ -519,7 +542,7 @@ public sealed class IslandWindow : Window
         _noticeTimer.Stop();
         _noticeTimer.Interval = IslandLogic.Duration(notice.Event);
         _noticeTimer.Start();
-        if (!_expanded) RefreshCollapsed(force: true);
+        RefreshCollapsed(force: true);
     }
 
     private void OnMascotEvent(MascotEvent e)
@@ -571,11 +594,14 @@ public sealed class IslandWindow : Window
 
     private void RefreshCollapsed(bool force)
     {
-        if (_expanded) return;
+        if (_expanded)
+        {
+            RefreshStub(force);
+            return;
+        }
         var state = CurrentState();
         if (state.Activity is null) _preferredActivity = null;
-        var music = _ctx.Music();
-        var signature = $"{state.Notice?.GetHashCode()}|{state.Activity}|{state.Idle}|{state.CompanionRests}|{(state.Activity == IslandActivity.Music && _hovered)}|{music?.TrackKey}|{music?.Artwork?.GetHashCode()}|{_cameo?.Reaction}|{(state.Activity == IslandActivity.Watch ? _ctx.Watch()?.Headline : null)}|{(state.Activity == IslandActivity.Downloads ? _ctx.Downloads()?.FirstOrDefault()?.ReceivedBytes : null)}|{state.Idle == IslandIdleContent.Battery && DateTime.Now.Second / 30 == 0}";
+        var signature = Signature(state);
         if (!force && signature == _collapsedSignature) return;
         _collapsedSignature = signature;
         var content = IslandCollapsed.Build(_ctx, state);
@@ -591,6 +617,34 @@ public sealed class IslandWindow : Window
         var width = Math.Max(content.MinWidth, Math.Min(content.MaxWidth, content.DesiredSize.Width));
         AnimateTo(width, IslandCollapsed.Height, IslandCollapsed.Height / 2, grow: width > _pill.ActualWidth);
         _pill.ToolTip = null;
+    }
+
+    /// <summary>The closed pill's copy that stays in the taskbar while the island is open there.</summary>
+    private void RefreshStub(bool force)
+    {
+        if (!_expanded || _dock is null || _hiddenForFullscreen)
+        {
+            _stub.Visibility = Visibility.Collapsed;
+            _stubContent.Content = null;
+            _stubSignature = null;
+            return;
+        }
+        var state = CurrentState();
+        var signature = Signature(state);
+        if (!force && signature == _stubSignature) return;
+        _stubSignature = signature;
+        var content = IslandCollapsed.Build(_ctx, state);
+        _stubContent.Content = content;
+        content.Measure(new Size(double.PositiveInfinity, IslandCollapsed.Height));
+        _stub.Width = Math.Max(content.MinWidth, Math.Min(content.MaxWidth, content.DesiredSize.Width));
+        _stub.Margin = _restMargin;
+        _stub.Visibility = Visibility.Visible;
+    }
+
+    private string Signature(CollapsedState state)
+    {
+        var music = _ctx.Music();
+        return $"{state.Notice?.GetHashCode()}|{state.Activity}|{state.Idle}|{state.CompanionRests}|{(state.Activity == IslandActivity.Music && _hovered)}|{music?.TrackKey}|{music?.Artwork?.GetHashCode()}|{_cameo?.Reaction}|{(state.Activity == IslandActivity.Watch ? _ctx.Watch()?.Headline : null)}|{(state.Activity == IslandActivity.Downloads ? _ctx.Downloads()?.FirstOrDefault()?.ReceivedBytes : null)}|{state.Idle == IslandIdleContent.Battery && DateTime.Now.Second / 30 == 0}";
     }
 
     private void SetContent(FrameworkElement content)
@@ -609,6 +663,7 @@ public sealed class IslandWindow : Window
         _expanded = true;
         if (!byHover) TakeFocus();
         Rebuild(animate: true, reveal: first);
+        if (first) RefreshStub(force: true);
     }
 
     private void TakeFocus()
@@ -625,6 +680,7 @@ public sealed class IslandWindow : Window
         _openedByHover = false;
         _nav.LyricsOpen = _nav.QueueOpen = false;
         ApplyPillMargin();
+        RefreshStub(force: false);
         SetNoActivate(true);
         _pill.Cursor = Cursors.Hand;
         ((DropShadowEffect)_pill.Effect).BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromSeconds(0.2)));

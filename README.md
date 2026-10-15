@@ -2,6 +2,8 @@
 
 One tray icon doing the job of a dozen Windows utilities. Install only what you use.
 
+**[Try the live demo desktop](https://bjdevelopes.github.io/FieldKit/)** · **[Download](https://github.com/BJDevelopes/FieldKit/releases/latest)**
+
 > **On a Mac?** Fieldkit is the Windows counterpart of [Vorssaint](https://github.com/vorssaint/vorssaint-utils),
 > the original all-in-one menu bar utility for macOS. Use that instead.
 
@@ -11,7 +13,7 @@ monitor, a better app switcher, window layouts, clipboard history, text snippets
 uninstaller and much more, behind a single notification-area icon. No account, no telemetry, no
 subscription.
 
-> **Status: feature-complete preview (0.1).** Every upstream feature is implemented or mapped:
+> **Status: feature-complete preview (0.x).** Every upstream feature is implemented or mapped:
 > 22 match the original, 49 are partial (each one says what is missing), 4 are built into Windows
 > and 2 cannot be built for an unpackaged Windows app. See [the parity map](docs/PARITY.md).
 > Most features have only been verified by tests and rendering so far; expect rough edges until
@@ -31,11 +33,16 @@ subscription.
 
 ## Download
 
-Get `Fieldkit-<version>-win-x64.zip` (or `win-arm64`) from
-[Releases](https://github.com/BJDevelopes/FieldKit/releases), unzip it and run `Fieldkit.exe`. It is a
-single self-contained file: no installer and no .NET install needed. Keep it somewhere permanent (not
-Downloads) if you turn on "Start with Windows". Windows SmartScreen may warn about an unsigned app the first
-time: choose **More info → Run anyway**.
+From [Releases](https://github.com/BJDevelopes/FieldKit/releases), pick one (use `arm64` on ARM PCs):
+
+- **Installer:** `Fieldkit-<version>-setup-x64.exe`. Installs for your account without an administrator
+  prompt, adds Fieldkit to the Start menu and to Settings → Apps for uninstalling, and updates in place
+  when you run a newer one. Uninstalling turns off "Start with Windows" and keeps your settings.
+- **Portable:** `Fieldkit-<version>-win-x64.zip`. Unzip it and run `Fieldkit.exe`, a single self-contained
+  file. Keep it somewhere permanent (not Downloads) if you turn on "Start with Windows".
+
+Neither needs .NET installed. Windows SmartScreen may warn about an unsigned app the first time: choose
+**More info → Run anyway**.
 
 ## Build and run
 
@@ -46,7 +53,7 @@ dotnet run --project src/Fieldkit
 ```
 
 Click the tray icon to open the panel; right-click it for Settings and Quit. A first start installs
-the Essentials bundle (volume mixer, system monitor, keep awake); Settings → Features installs the rest.
+the Essentials bundle (volume mixer, system monitor, keep awake, and the Dynamic Island in the taskbar); Settings → Features installs the rest.
 
 `./build.ps1` runs the Release build, all tests and the app's selftest; `./build.ps1 -Publish` also
 produces a self-contained single-file `artifacts/win-x64/Fieldkit.exe` (no .NET needed; about 40 MB of memory when idle).

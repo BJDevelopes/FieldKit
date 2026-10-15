@@ -245,8 +245,8 @@ public static class FeatureCatalog
                 "GetExtendedTcpTable/UdpTable listing listening ports with their processes and a stop button."),
 
             // Dynamic Island
-            new("notch", I, "Dynamic Island", "Music, timers, notifications and controls at the top of the screen", Glyphs.Island, EnergyProfile.Mouse,
-                "A simulated island at the top center of the screen that expands on hover, driven by the system media session and the extensions below."),
+            new("notch", I, "Dynamic Island", "Music, timers, notifications and controls in the taskbar", Glyphs.Island, EnergyProfile.Mouse,
+                "A simulated island in the taskbar (or at the top center of the screen) that expands on hover, driven by the system media session and the extensions below."),
             new("notchCalendar", I, "Calendar", "Upcoming events in the island", Glyphs.Calendar, EnergyProfile.Periodic,
                 "Upcoming events from ICS feeds or the Windows calendar.", Parent: "notch"),
             new("notchNotifications", I, "Notifications", "Notifications appear in the island", Glyphs.Bell, EnergyProfile.Idle,

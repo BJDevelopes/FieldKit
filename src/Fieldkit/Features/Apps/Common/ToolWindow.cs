@@ -26,6 +26,7 @@ public class ToolWindow : Window
         MinWidth = 420;
         MinHeight = 360;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        WindowFit.ToDisplay(this);
         FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI");
         SetResourceReference(BackgroundProperty, "WindowBackground");
         SetResourceReference(ForegroundProperty, "TextPrimary");

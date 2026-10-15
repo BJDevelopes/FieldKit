@@ -14,7 +14,7 @@ public static class IslandKeys
     public const string CustomHeight = "notch.customHeight";
     public const string Outline = "notch.outline";
     public const string Display = "notch.display";                 // automatic | main | pointer | <device name>
-    public const string Placement = "notch.placement";             // top | taskbar
+    public const string Placement = "notch.placement";             // taskbar (default) | top
     public const string Opening = "notch.opening";                 // click | hover
     public const string HoverDelay = "notch.hoverDelay";
     public const string CloseDelay = "notch.closeDelay";

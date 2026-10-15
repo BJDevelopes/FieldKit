@@ -3,6 +3,20 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
+## Unreleased
+
+- **The Dynamic Island is now part of Essentials and lives in the taskbar by default,** in place of the square
+  Fieldkit button. Choose "Top of the screen" in Settings → Dynamic Island → Where, or turn it off there.
+  Its settings page and feature description now say so too. While the island is open, its pill stays in the
+  taskbar; click it to close the island.
+- **An installer** next to the portable zip in each release (`Fieldkit-<version>-setup-x64.exe`, and arm64):
+  per user without an administrator prompt, a Start menu shortcut, updates in place, and an uninstaller that
+  turns off Start with Windows and removes the browser picker's registration (settings stay).
+- Settings → Features fits narrow windows: the bundles stack and each feature's badges wrap under its name.
+- A project website with a live demo desktop: https://bjdevelopes.github.io/FieldKit/
+- Settings and the larger tool windows (Media, the screenshot and recording editors, Disk usage, Port Manager)
+  never open bigger than the display: at 150 % scaling or on a small screen they shrink to fit.
+
 ## 0.3.0 (2026-10-15)
 
 New Fieldkit extras (they start uninstalled; add them in Settings → Features):

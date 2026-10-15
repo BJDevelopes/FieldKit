@@ -33,6 +33,31 @@ public static class IslandPreview
 
     public static void Render(string path, IslandPreviewState state)
     {
+        var pill = BuildPill(state);
+        var stage = new Grid
+        {
+            Background = new LinearGradientBrush(Color.FromRgb(70, 92, 130), Color.FromRgb(150, 110, 150), 30),
+            Width = pill.Width + 80,
+            Height = pill.Height + 40,
+        };
+        stage.Children.Add(pill);
+        stage.Measure(new Size(stage.Width, stage.Height));
+        stage.Arrange(new Rect(0, 0, stage.Width, stage.Height));
+        stage.UpdateLayout();
+
+        var bitmap = new RenderTargetBitmap((int)Math.Ceiling(stage.Width * 2), (int)Math.Ceiling(stage.Height * 2), 192, 192, PixelFormats.Pbgra32);
+        bitmap.Render(stage);
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        using var stream = File.Create(path);
+        encoder.Save(stream);
+    }
+
+    /// <summary>The island in <paramref name="state"/> with sample data, not yet laid out (for previews and the site export).</summary>
+    /// <param name="expandedWidth">560 as on the PC; 360 is the narrowest custom size (the website uses it on phones).</param>
+    public static Border BuildPill(IslandPreviewState state, double expandedWidth = 560)
+    {
         var ctx = SampleContext(state);
         FrameworkElement content;
         double width, height, radius;
@@ -70,16 +95,16 @@ public static class IslandPreview
                 IslandPreviewState.ExpandedFiles => "files",
                 _ => "controls",
             };
-            var nav = new IslandNav { Section = section, Width = 560, Budget = 264, LyricsOpen = state == IslandPreviewState.ExpandedLyrics };
+            var nav = new IslandNav { Section = section, Width = expandedWidth, Budget = 264, LyricsOpen = state == IslandPreviewState.ExpandedLyrics };
             content = IslandPages.Build(ctx, nav, IslandLogic.Sections);
-            content.Width = 560;
-            content.Measure(new Size(560, double.PositiveInfinity));
-            width = 560;
+            content.Width = expandedWidth;
+            content.Measure(new Size(expandedWidth, double.PositiveInfinity));
+            width = expandedWidth;
             height = Math.Max(120, content.DesiredSize.Height);
             radius = Math.Min(28, 0.34 * height);
         }
 
-        var pill = new Border
+        return new Border
         {
             Background = IslandPalette.Background,
             CornerRadius = new CornerRadius(radius),
@@ -91,24 +116,6 @@ public static class IslandPreview
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, 4, 0, 0),
         };
-        var stage = new Grid
-        {
-            Background = new LinearGradientBrush(Color.FromRgb(70, 92, 130), Color.FromRgb(150, 110, 150), 30),
-            Width = width + 80,
-            Height = height + 40,
-        };
-        stage.Children.Add(pill);
-        stage.Measure(new Size(stage.Width, stage.Height));
-        stage.Arrange(new Rect(0, 0, stage.Width, stage.Height));
-        stage.UpdateLayout();
-
-        var bitmap = new RenderTargetBitmap((int)Math.Ceiling(stage.Width * 2), (int)Math.Ceiling(stage.Height * 2), 192, 192, PixelFormats.Pbgra32);
-        bitmap.Render(stage);
-        var encoder = new PngBitmapEncoder();
-        encoder.Frames.Add(BitmapFrame.Create(bitmap));
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        using var stream = File.Create(path);
-        encoder.Save(stream);
     }
 
     /// <summary>Renders every state into <paramref name="directory"/> as island-&lt;state&gt;.png.</summary>

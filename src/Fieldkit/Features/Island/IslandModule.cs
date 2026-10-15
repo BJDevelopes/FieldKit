@@ -19,7 +19,7 @@ public sealed class IslandModule : IFeatureModule
     public void Register(ModuleRegistry r)
     {
         r.Implements("notch", Parity.Partial,
-            "Simulated capsule at the top centre of the chosen display with music, controls, file shelf, sections and their order. " +
+            "Simulated capsule in the taskbar (default) or at the top centre of the chosen display, with music, controls, file shelf, sections and their order. " +
             "Missing: camera mirror, clipboard/captures/scratchpad/mixer/system sections, floating quick-access buttons, lock screen, " +
             "all-displays mirroring, peek preview, haptics, brightness and keyboard-light controls (other features' quick toggles appear instead).");
         r.Implements("notchCalendar", Parity.Partial,

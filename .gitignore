@@ -19,3 +19,6 @@ TestResults/
 *.p12
 .idea/
 *.DotSettings.user
+
+# Site export review list (developer only; never published)
+site/data/texts.txt

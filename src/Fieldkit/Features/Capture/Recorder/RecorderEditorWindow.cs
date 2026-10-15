@@ -89,6 +89,7 @@ public sealed class RecorderEditorWindow : Window
         MinWidth = 820;
         MinHeight = 600;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        WindowFit.ToDisplay(this);
         FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI");
         SetResourceReference(BackgroundProperty, "WindowBackground");
         SetResourceReference(ForegroundProperty, "TextPrimary");

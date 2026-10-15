@@ -176,6 +176,9 @@ public sealed class PanelWindow : Window
         if (Native.GetForegroundWindow() != hwnd) WindowHelper.Activate(hwnd);
     }
 
+    /// <summary>The panel's drawn content (brand, tabs, section, footer), for the site export.</summary>
+    internal FrameworkElement? Surface => Content as FrameworkElement;
+
     public void HidePanel()
     {
         if (!IsVisible) return;

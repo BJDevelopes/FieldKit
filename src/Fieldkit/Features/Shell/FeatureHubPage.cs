@@ -13,8 +13,8 @@ public sealed record FeatureBundle(string Id, string Name, string Description, s
 {
     public static readonly FeatureBundle[] All =
     [
-        new("essential", "Essentials", "Volume mixer, system monitor and keep awake.", Glyphs.Star,
-            ["mixer", "keepAwake", "monitorCPU", "monitorGPU", "monitorMemory", "monitorNetwork", "monitorDisk", "monitorPower"], []),
+        new("essential", "Essentials", "Volume mixer, system monitor, keep awake and the Dynamic Island in the taskbar.", Glyphs.Star,
+            ["mixer", "keepAwake", "monitorCPU", "monitorGPU", "monitorMemory", "monitorNetwork", "monitorDisk", "monitorPower", "notch"], []),
         new("windows", "Windows", "App switcher, window layout and the taskbar features.", Glyphs.Switcher,
             ["switcher", "windowLayout", "dockPreview", "dockClick", "windowMaximizer"],
             ["switcher.enabled", "dockPreview.enabled", "dockClick.minimize", "windowMaximizer.enabled"]),
@@ -122,9 +122,22 @@ public static class FeatureHubPage
                 apply);
             return (UIElement)Ui.Card(content, new Thickness(14));
         }).ToArray();
+        // Three across; one per line when the page is narrow (a small display, or the website on a phone).
+        var grid = Ui.Columns(cards.Length, 12, cards);
+        grid.SizeChanged += (_, e) =>
+        {
+            var columns = e.NewSize.Width < 520 ? 1 : cards.Length;
+            if (grid.Columns == columns) return;
+            grid.Columns = columns;
+            for (var i = 0; i < cards.Length; i++)
+                if (cards[i] is FrameworkElement fe)
+                    fe.Margin = columns == 1
+                        ? new Thickness(0, i == 0 ? 0 : 10, 0, 0)
+                        : new Thickness(i == 0 ? 0 : 6, 0, i == cards.Length - 1 ? 0 : 6, 0);
+        };
         return Ui.Stack(10,
             Ui.Title("Start with a bundle", 17),
-            Ui.Columns(3, 12, cards),
+            grid,
             Ui.Caption("One click sets the app up for how you use your PC. Everything else stays one click away."));
     }
 
@@ -156,13 +169,23 @@ public static class FeatureHubPage
         };
         ToolTipService.SetInitialShowDelay(info, 150);
 
-        var titleRow = Ui.Row(8,
-            Ui.Text(f.Title, 14.5, FontWeights.SemiBold, wrap: false),
-            info,
-            Ui.Badge(FeatureCatalog.EnergyLabel(f.Energy)),
-            f.Beta ? Ui.Badge("Experimental", "AccentSubtle", "Accent") : null,
-            f.Extra ? Ui.Badge("Fieldkit extra", "AccentSubtle", "Accent") : null,
-            StatusBadge(claim));
+        // The badges wrap under the title when the page is narrow, instead of running under the button.
+        var titleRow = new WrapPanel();
+        foreach (var part in new UIElement?[]
+                 {
+                     Ui.Text(f.Title, 14.5, FontWeights.SemiBold, wrap: false),
+                     info,
+                     Ui.Badge(FeatureCatalog.EnergyLabel(f.Energy)),
+                     f.Beta ? Ui.Badge("Experimental", "AccentSubtle", "Accent") : null,
+                     f.Extra ? Ui.Badge("Fieldkit extra", "AccentSubtle", "Accent") : null,
+                     StatusBadge(claim),
+                 })
+        {
+            if (part is not FrameworkElement fe) continue;
+            fe.Margin = new Thickness(0, 1, 8, 1);
+            fe.VerticalAlignment = VerticalAlignment.Center;
+            titleRow.Children.Add(fe);
+        }
         var text = Ui.Stack(3, titleRow, Ui.Caption(f.Description, 13));
         text.Margin = new Thickness(12, 0, 0, 0);
 
@@ -170,6 +193,7 @@ public static class FeatureHubPage
             ? Ui.Button("Uninstall", () => f.SetAvailable(false))
             : Ui.Button("Install", () => f.SetAvailable(true), accent: true);
         button.MinWidth = 96;
+        System.Windows.Automation.AutomationProperties.SetAutomationId(button, "feature:" + f.Id);
 
         var row = new Grid();
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });

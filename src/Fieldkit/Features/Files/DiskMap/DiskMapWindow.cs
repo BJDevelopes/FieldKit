@@ -34,6 +34,7 @@ public sealed class DiskMapWindow : ToolWindow
     {
         MinWidth = 760;
         MinHeight = 520;
+        WindowFit.ToDisplay(this);
         _view = new DiskMapView(this);
         Content = _view.Root;
         PreviewKeyDown += (_, e) =>

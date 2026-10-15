@@ -95,6 +95,7 @@ public sealed class ScreenshotEditorWindow : Window
         MinWidth = 720;
         MinHeight = 480;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        WindowFit.ToDisplay(this);
         FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI");
         SetResourceReference(BackgroundProperty, "WindowBackground");
         SetResourceReference(ForegroundProperty, "TextPrimary");

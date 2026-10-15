@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Automation;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Fieldkit.Core;
@@ -233,6 +234,7 @@ public static class Ui
     {
         var cb = new CheckBox { IsChecked = Settings.GetBool(key, defaultValue) };
         cb.SetResourceReference(FrameworkElement.StyleProperty, small ? "ToggleSwitchSmall" : "ToggleSwitch");
+        AutomationProperties.SetAutomationId(cb, key); // names the setting for UI Automation (and the site export)
         var updating = false;
         cb.Click += (_, _) =>
         {
@@ -328,6 +330,7 @@ public static class Ui
             TickFrequency = step,
             IsSnapToTickEnabled = step > 0,
         };
+        AutomationProperties.SetAutomationId(slider, key);
         var value = Text(format(slider.Value), 13, FontWeights.Medium, "TextSecondary", wrap: false);
         value.MinWidth = 52;
         value.TextAlignment = TextAlignment.Right;
@@ -355,6 +358,7 @@ public static class Ui
         Action<string>? onChanged = null)
     {
         var combo = new ComboBox();
+        AutomationProperties.SetAutomationId(combo, key);
         foreach (var (v, l) in options) combo.Items.Add(new ComboBoxItem { Content = l, Tag = v });
         void Select()
         {
@@ -393,6 +397,7 @@ public static class Ui
             VerticalContentAlignment = multiline ? VerticalAlignment.Top : VerticalAlignment.Center,
             ToolTip = placeholder,
         };
+        AutomationProperties.SetAutomationId(tb, key);
         tb.TextChanged += (_, _) => Settings.Set(key, tb.Text);
         return tb;
     }

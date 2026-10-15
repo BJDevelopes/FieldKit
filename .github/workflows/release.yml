@@ -1,6 +1,7 @@
 name: Release
 
-# Push a tag such as v0.1.0 (or v0.2.0-beta.1) to build, test and publish a GitHub release with the zipped exes.
+# Push a tag such as v0.1.0 (or v0.2.0-beta.1) to build, test and publish a GitHub release with installers and
+# portable zips for x64 and arm64.
 on:
   push:
     tags: ['v*']
@@ -57,6 +58,32 @@ jobs:
             Compress-Archive -Path "artifacts/$rid/Fieldkit.exe" -DestinationPath "artifacts/Fieldkit-$version-$rid.zip" -CompressionLevel Optimal
           }
 
+      # The installers: per user, no administrator prompt, Start menu shortcut, clean uninstall.
+      - name: Build the installers
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup --no-progress -y
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
+          foreach ($arch in 'x64', 'arm64') {
+            & $iscc /Q "/DAppVersion=$version" "/DArch=$arch" installer/Fieldkit.iss
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
+
+      - name: Smoke-test the x64 installer
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          $dir = Join-Path $env:RUNNER_TEMP 'fieldkit-install'
+          $setup = Start-Process -FilePath "artifacts/Fieldkit-$version-setup-x64.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER', "/DIR=$dir" -Wait -PassThru
+          if ($setup.ExitCode -ne 0 -or -not (Test-Path "$dir/Fieldkit.exe")) { Write-Error "Install failed ($($setup.ExitCode))"; exit 1 }
+          $uninstall = Start-Process -FilePath "$dir/unins000.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
+          Start-Sleep -Seconds 2 # the uninstaller finishes removing itself from a copy in %TEMP%
+          if ($uninstall.ExitCode -ne 0 -or (Test-Path "$dir/Fieldkit.exe")) { Write-Error "Uninstall failed ($($uninstall.ExitCode))"; exit 1 }
+
       - name: Create the GitHub release
         shell: pwsh
         env:
@@ -66,4 +93,6 @@ jobs:
           $version = $tag.TrimStart('v')
           $flags = @('--generate-notes', '--title', "Fieldkit $version")
           if ($tag.Contains('-') -or $version.StartsWith('0.')) { $flags += '--prerelease' }
-          gh release create $tag "artifacts/Fieldkit-$version-win-x64.zip" "artifacts/Fieldkit-$version-win-arm64.zip" @flags
+          gh release create $tag `
+            "artifacts/Fieldkit-$version-setup-x64.exe" "artifacts/Fieldkit-$version-setup-arm64.exe" `
+            "artifacts/Fieldkit-$version-win-x64.zip" "artifacts/Fieldkit-$version-win-arm64.zip" @flags
