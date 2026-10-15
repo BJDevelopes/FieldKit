@@ -1,7 +1,10 @@
 # Privacy
 
-Fieldkit has no account, no telemetry, no analytics and no crash reporting. Nothing you do in the app
-is sent anywhere.
+[← Docs](README.md)
+
+> [!IMPORTANT]
+> Fieldkit has **no account, no telemetry, no analytics and no crash reporting**. Nothing you do in the app
+> is sent anywhere. It only uses the network for a feature you invoke, listed [below](#when-fieldkit-uses-the-network).
 
 ## What stays on your PC
 
@@ -45,6 +48,9 @@ Only when you use a feature that needs it:
 Links from outside data (for example calendar events) only open if they are web or email links.
 
 ## Permissions
+
+> [!NOTE]
+> Fieldkit runs as a normal user and only asks for more when an optional extra needs it.
 
 Fieldkit runs as a normal user. Administrator rights are only needed for optional extras (CPU
 temperatures and fan control through the PawnIO driver, system-wide cleaning, machine-wide

@@ -1,5 +1,7 @@
 # Lessons from Vorssaint's bug reports
 
+[← Docs](README.md)
+
 Fieldkit ports Vorssaint's features, so its bug tracker is a map of where this kind of app goes wrong.
 All 487 issues labelled `bug` (166 open, 321 closed, October 2026) were read. Most are specific to
 macOS (Spaces, the Dock, Stage Manager, the notch hardware, Apple Music, AirPods, Accessibility

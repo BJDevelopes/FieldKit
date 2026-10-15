@@ -1,5 +1,7 @@
 # Contributing to Fieldkit
 
+[← Project page](README.md) · [Docs](docs/README.md)
+
 Thanks for helping. Fieldkit aims to stay native, small per feature and readable. Contributions are
 accepted under GPL-3.0-or-later.
 

@@ -1,5 +1,7 @@
 # Architecture
 
+[← Docs](README.md)
+
 Fieldkit is a .NET 8 WPF tray app (`src/Fieldkit`). It mirrors the feature set and UI of
 [Vorssaint](https://github.com/vorssaint/vorssaint-utils) for macOS, mapped to Windows.
 
@@ -36,7 +38,8 @@ public sealed class KeepAwakeModule : IFeatureModule
 * **Parity claims**: `Full` = behaves like upstream, `Partial` = say what is missing in the note,
   `Native` = Windows already does it (point at the system setting), `Planned` = nothing yet (the
   default when a module never claims a feature). `Fieldkit.exe --write-parity docs/PARITY.md`
-  regenerates the parity map; the Features hub shows a badge for anything not `Full`.
+  regenerates the parity map; the Features hub flags "Not built yet" and "Built into Windows" features, and every other note appears in the
+  feature's info tooltip.
 * **Services** (`FeatureService`) run while the feature is installed in the Features hub AND
   `ShouldRun()` is true (default: any `EnableKeys` setting is true). `OnStart`/`OnStop` run on the
   UI thread; stop must release every hook, timer, thread and handle. Call

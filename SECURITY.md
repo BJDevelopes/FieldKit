@@ -1,5 +1,7 @@
 # Security policy
 
+[← Project page](README.md) · [Docs](docs/README.md)
+
 Fieldkit installs keyboard and mouse hooks, reads clipboard history, controls audio and power
 settings, and can run installers and uninstallers when you ask it to. Security problems are taken
 seriously.

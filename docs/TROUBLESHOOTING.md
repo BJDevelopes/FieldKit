@@ -1,5 +1,18 @@
 # Troubleshooting
 
+[← Docs](README.md)
+
+| If you see… | Go to |
+|---|---|
+| No Fieldkit icon next to the clock | [The tray icon is missing](#the-tray-icon-is-missing) |
+| A shortcut that does nothing, or ⚠ in Settings | [A shortcut does nothing](#a-shortcut-does-nothing-or-shows--in-settings) |
+| Input features dead in some windows | [Keyboard or mouse features stop working](#keyboard-or-mouse-features-stop-working-in-some-windows) |
+| Scrolling that goes too far | [Smooth scrolling](#smooth-scrolling-scrolls-too-far-in-an-app) |
+| No CPU temperature or fan control | [Sensors](#no-cpu-temperature-or-fan-control) |
+| Recording effects or GIF export greyed out | [ffmpeg](#recording-effects-or-gif-export-are-unavailable) |
+| Empty Packages or App updates | [winget](#packages-or-app-updates-show-nothing) |
+| Something badly wrong | [Resetting Fieldkit](#resetting-fieldkit) |
+
 ## The tray icon is missing
 
 Windows may hide new icons behind the **^** arrow on the taskbar. To keep it visible, open
@@ -40,8 +53,12 @@ They use `winget`. Install or update **App Installer** from the Microsoft Store,
 
 ## Resetting Fieldkit
 
-Quit Fieldkit, then delete or rename `%APPDATA%\Fieldkit`. The next start behaves like a first run.
-To stop it starting with Windows, turn off Settings → General → Start with Windows.
+Quit Fieldkit, then delete or rename `%APPDATA%\Fieldkit`. The next start behaves like a first run, with every
+feature installed again. To stop it starting with Windows, turn off Settings → General → Start with Windows.
+
+> [!TIP]
+> Uninstalling with the installer keeps `%APPDATA%\Fieldkit` so a reinstall finds your settings. Delete that
+> folder yourself if you want them gone too.
 
 ## Reporting a problem
 

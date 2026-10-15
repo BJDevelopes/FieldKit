@@ -3,6 +3,11 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
+## Unreleased
+
+- A redesigned README (banner, feature overview, fresh screenshots of the island, panel and Settings) and a docs
+  index page; the other docs link back to it.
+
 ## 0.4.0 (2026-10-15)
 
 - **The Dynamic Island is now part of Essentials and lives in the taskbar by default,** in place of the square

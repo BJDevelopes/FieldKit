@@ -22,3 +22,6 @@ TestResults/
 
 # Site export review list (developer only; never published)
 site/data/texts.txt
+
+# Marketing material (the Instagram reel and its caption) stays local
+marketing/
