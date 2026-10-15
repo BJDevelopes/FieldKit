@@ -42,7 +42,7 @@ public enum Parity
 /// <param name="Id">Stable identity, reusing the upstream raw value. Never rename.</param>
 /// <param name="WindowsApproach">How the Windows build implements (or maps) the feature.</param>
 /// <param name="Extra">A Fieldkit addition that Vorssaint does not ship (often an idea from one of its pull
-/// requests). Extras start uninstalled and stay out of the parity counts.</param>
+/// requests). Extras are installed like the rest but stay out of the parity counts.</param>
 public sealed record FeatureInfo(
     string Id,
     FeatureGroup Group,
@@ -57,8 +57,8 @@ public sealed record FeatureInfo(
 {
     public string AvailabilityKey => $"feature.{Id}.available";
 
-    /// <summary>Installed in the Features hub. Everything starts installed, like upstream.</summary>
-    public bool IsAvailable => Settings.GetBool(AvailabilityKey, !Beta && !Extra);
+    /// <summary>Installed in the Features hub. Everything starts installed except the experimental features.</summary>
+    public bool IsAvailable => Settings.GetBool(AvailabilityKey, !Beta);
 
     public void SetAvailable(bool value) => Settings.Set(AvailabilityKey, value);
 }

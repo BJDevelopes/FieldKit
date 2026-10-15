@@ -218,6 +218,7 @@ public partial class App : Application
 
         Log.Info($"{AppInfo.Name} {AppInfo.Version} starting");
         ThemeManager.Initialize();
+        Features.Wellbeing.BreakRemindersService.MigrateDefaults();
         FeatureRuntime.Initialize();
 
         _panel = new PanelWindow();

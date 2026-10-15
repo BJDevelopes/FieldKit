@@ -559,8 +559,8 @@ async function start() {
   DATA = await fetch("data/ui.json", { cache: "no-cache" }).then((r) => r.json()); // revalidated, so an update never pairs old data with new code
   DATA.featureById = Object.fromEntries(DATA.features.map((f) => [f.id, f]));
   DATA.islandById = Object.fromEntries(DATA.island.map((s) => [s.id, s]));
-  // Like the app: everything starts installed except experiments and Fieldkit's extras.
-  state.installed = new Set(store.get("installed", DATA.features.filter((f) => !f.beta && !f.extra).map((f) => f.id)));
+  // Like the app: everything starts installed except the experimental features.
+  state.installed = new Set(store.get("installed", DATA.features.filter((f) => !f.beta).map((f) => f.id)));
   state.values = store.get("values", {});
 
   makeDraggable($("#settings"));

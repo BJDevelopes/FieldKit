@@ -63,6 +63,27 @@ public sealed class BreakRemindersService : FeatureService
     public const string MoveKey = "breakReminders.move";
     public const string MoveMinutesKey = "breakReminders.moveMinutes";
 
+    /// <summary>The reminders stay off until the user switches one on, so installing every feature never starts nagging.</summary>
+    public const bool OnByDefault = false;
+
+    private const string MigratedKey = "breakReminders.defaultsMigrated";
+
+    /// <summary>
+    /// Run once at start-up: an install that already had Break reminders keeps its reminders on (they used to be on
+    /// by default), a fresh one starts with them off.
+    /// </summary>
+    public static void MigrateDefaults()
+    {
+        if (Settings.GetBool(MigratedKey, false)) return;
+        var info = FeatureCatalog.Get(Id);
+        if (Settings.Has(info.AvailabilityKey) && info.IsAvailable)
+        {
+            if (!Settings.Has(EyesKey)) Settings.Set(EyesKey, true);
+            if (!Settings.Has(MoveKey)) Settings.Set(MoveKey, true);
+        }
+        Settings.Set(MigratedKey, true);
+    }
+
     private readonly DispatcherTimer _timer = new(DispatcherPriority.Background) { Interval = TimeSpan.FromSeconds(15) };
     private BreakState _state;
     private DateTime _last;
@@ -71,6 +92,7 @@ public sealed class BreakRemindersService : FeatureService
 
     public override string FeatureId => Id;
     public override IReadOnlyList<string> EnableKeys => [EyesKey, MoveKey];
+    public override bool EnabledByDefault => OnByDefault;
 
     public BreakRemindersService() => _timer.Tick += (_, _) => Ui.Guard(Tick);
 
@@ -89,8 +111,8 @@ public sealed class BreakRemindersService : FeatureService
         var elapsed = now - _last;
         _last = now;
         if (DateTime.Now < SnoozedUntil) return;
-        var eyes = Settings.GetBool(EyesKey, true) ? TimeSpan.FromMinutes(Math.Clamp(Settings.GetInt(EyesMinutesKey, 20), 5, 120)) : (TimeSpan?)null;
-        var move = Settings.GetBool(MoveKey, true) ? TimeSpan.FromMinutes(Math.Clamp(Settings.GetInt(MoveMinutesKey, 60), 15, 240)) : (TimeSpan?)null;
+        var eyes = Settings.GetBool(EyesKey, OnByDefault) ? TimeSpan.FromMinutes(Math.Clamp(Settings.GetInt(EyesMinutesKey, 20), 5, 120)) : (TimeSpan?)null;
+        var move = Settings.GetBool(MoveKey, OnByDefault) ? TimeSpan.FromMinutes(Math.Clamp(Settings.GetInt(MoveMinutesKey, 60), 15, 240)) : (TimeSpan?)null;
         var decision = BreakLogic.Tick(_state, elapsed, IdleTime(), eyes, move, CanInterrupt());
         _state = decision.State;
         if (decision.RemindMove) Notifier.Show("Time to move", "Stand up, stretch and walk around for a few minutes.");
@@ -141,11 +163,11 @@ public sealed class BreakRemindersModule : IFeatureModule
 
     private static FrameworkElement BuildPage() => Ui.Page("Break reminders",
         "Gentle reminders to rest your eyes and get up. Only time at the PC counts, and stepping away resets them. " +
-        "Full-screen apps and presentations are never interrupted.",
+        "Full-screen apps and presentations are never interrupted. Both reminders are off until you switch them on.",
         Ui.Group("Eyes",
-            Ui.ToggleRow("Remind me to rest my eyes", "Look about 6 metres away for 20 seconds (the 20-20-20 rule).", BreakRemindersService.EyesKey, true),
+            Ui.ToggleRow("Remind me to rest my eyes", "Look about 6 metres away for 20 seconds (the 20-20-20 rule).", BreakRemindersService.EyesKey, BreakRemindersService.OnByDefault),
             Ui.SliderRow("Every", BreakRemindersService.EyesMinutesKey, 5, 120, 20, v => $"{v:0} min", 5)),
         Ui.Group("Moving",
-            Ui.ToggleRow("Remind me to stand up and move", "A few minutes away from the desk.", BreakRemindersService.MoveKey, true),
+            Ui.ToggleRow("Remind me to stand up and move", "A few minutes away from the desk.", BreakRemindersService.MoveKey, BreakRemindersService.OnByDefault),
             Ui.SliderRow("Every", BreakRemindersService.MoveMinutesKey, 15, 240, 60, v => $"{v:0} min", 15)));
 }

@@ -53,7 +53,7 @@ dotnet run --project src/Fieldkit
 ```
 
 Click the tray icon to open the panel; right-click it for Settings and Quit. Everything is installed from
-the first start (apart from experimental features and Fieldkit's own extras); Settings → Features uninstalls what you don't use, or
+the first start (apart from the experimental features); Settings → Features uninstalls what you don't use, or
 applies a bundle such as Essentials.
 
 `./build.ps1` runs the Release build, all tests and the app's selftest; `./build.ps1 -Publish` also
@@ -85,8 +85,8 @@ already provides (F2 rename, cut and paste in Explorer, fixed virtual desktop or
 built into Windows and point at the system setting.
 
 Fieldkit also has a few extras that Vorssaint does not ship, mostly ideas from its issues and pull
-requests: break reminders, duplicate files, disk usage, key remapping, block apps and a browser picker. They start uninstalled;
-add them in Settings → Features.
+requests: break reminders, duplicate files, disk usage, key remapping, block apps and a browser picker. They are installed
+with everything else, and each does nothing until you set it up (break reminders start switched off).
 
 ## Privacy
 
