@@ -346,6 +346,7 @@ public static partial class Native
 
     // ---- Monitors ----------------------------------------------------------
     public const uint MONITOR_DEFAULTTONEAREST = 2;
+    public const uint MONITOR_DEFAULTTOPRIMARY = 1;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct MONITORINFOEX

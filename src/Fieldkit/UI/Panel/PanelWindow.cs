@@ -163,6 +163,9 @@ public sealed class PanelWindow : Window
     {
         if (sectionId is not null) Settings.Set(LastSectionKey, sectionId);
         Native.GetCursorPos(out _anchor);
+        // A tray or taskbar-button click anchors at the pointer; a relaunch or the command line
+        // (pointer anywhere) opens by the notification area of the main display instead.
+        if (!IsOverTaskbar(_anchor)) _anchor = NotificationAreaCorner();
         Rebuild();
         Show();
         PositionNearTray();
@@ -243,6 +246,20 @@ public sealed class PanelWindow : Window
     }
 
     /// <summary>Anchors the panel to the taskbar edge nearest the cursor, clamped to the work area.</summary>
+    /// <summary>Whether the point is on a taskbar (on its display but outside the work area).</summary>
+    private static bool IsOverTaskbar(Native.POINT p)
+    {
+        var info = WindowHelper.GetMonitorInfo(Native.MonitorFromPoint(p, Native.MONITOR_DEFAULTTONEAREST));
+        var work = info.rcWork;
+        return p.X < work.Left || p.X >= work.Right || p.Y < work.Top || p.Y >= work.Bottom;
+    }
+
+    private static Native.POINT NotificationAreaCorner()
+    {
+        var work = WindowHelper.GetMonitorInfo(Native.MonitorFromPoint(new Native.POINT(0, 0), Native.MONITOR_DEFAULTTOPRIMARY)).rcWork;
+        return new Native.POINT(work.Right - 1, work.Bottom - 1);
+    }
+
     private void PositionNearTray()
     {
         if (!IsVisible) return;

@@ -31,9 +31,10 @@ subscription.
 
 ## Download
 
-Get `Fieldkit-<version>-win-x64.exe` (or `win-arm64`) from
-[Releases](https://github.com/BJDevelopes/FieldKit/releases). It is a single self-contained file; no
-installer and no .NET install needed. Windows SmartScreen may warn about an unsigned app the first
+Get `Fieldkit-<version>-win-x64.zip` (or `win-arm64`) from
+[Releases](https://github.com/BJDevelopes/FieldKit/releases), unzip it and run `Fieldkit.exe`. It is a
+single self-contained file: no installer and no .NET install needed. Keep it somewhere permanent (not
+Downloads) if you turn on "Start with Windows". Windows SmartScreen may warn about an unsigned app the first
 time: choose **More info → Run anyway**.
 
 ## Build and run
@@ -48,7 +49,7 @@ Click the tray icon to open the panel; right-click it for Settings and Quit. A f
 the Essentials bundle (volume mixer, system monitor, keep awake); Settings → Features installs the rest.
 
 `./build.ps1` runs the Release build, all tests and the app's selftest; `./build.ps1 -Publish` also
-produces a self-contained single-file `artifacts/win-x64/Fieldkit.exe` (about 80 MB, no .NET needed).
+produces a self-contained single-file `artifacts/win-x64/Fieldkit.exe` (no .NET needed; about 40 MB of memory when idle).
 
 Some features need extras: CPU temperatures and fan control need administrator rights and the
 [PawnIO](https://pawnio.eu) driver, recording effects and GIF export need `ffmpeg` on the PATH, and

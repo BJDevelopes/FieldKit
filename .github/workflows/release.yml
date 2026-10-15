@@ -1,6 +1,6 @@
 name: Release
 
-# Push a tag such as v0.1.0 (or v0.2.0-beta.1) to build, test and publish a GitHub release with the exe.
+# Push a tag such as v0.1.0 (or v0.2.0-beta.1) to build, test and publish a GitHub release with the zipped exes.
 on:
   push:
     tags: ['v*']
@@ -36,17 +36,26 @@ jobs:
           foreach ($rid in 'win-x64', 'win-arm64') {
             dotnet publish src/Fieldkit/Fieldkit.csproj -c Release -r $rid --self-contained true `
               -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
-              -p:EnableCompressionInSingleFile=true -p:PublishReadyToRun=true -p:DebugType=none -p:Version=$version -o "artifacts/$rid"
+              -p:EnableCompressionInSingleFile=false -p:PublishReadyToRun=false -p:DebugType=none -p:Version=$version -o "artifacts/$rid"
             if ($LASTEXITCODE) { exit $LASTEXITCODE }
-            Copy-Item "artifacts/$rid/Fieldkit.exe" "artifacts/Fieldkit-$version-$rid.exe"
           }
 
       - name: Selftest the published exe
         shell: pwsh
         run: |
           $version = '${{ github.ref_name }}'.TrimStart('v')
-          $p = Start-Process -FilePath "artifacts/Fieldkit-$version-win-x64.exe" -ArgumentList '--selftest' -Wait -PassThru
+          $p = Start-Process -FilePath "artifacts/win-x64/Fieldkit.exe" -ArgumentList '--selftest' -Wait -PassThru
           if ($p.ExitCode -ne 0) { exit 1 }
+
+      # The exe is not compressed (a compressed single-file app keeps its assemblies unpacked in memory),
+      # so the download is a zip: about 70 MB instead of about 190 MB.
+      - name: Zip the exes
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          foreach ($rid in 'win-x64', 'win-arm64') {
+            Compress-Archive -Path "artifacts/$rid/Fieldkit.exe" -DestinationPath "artifacts/Fieldkit-$version-$rid.zip" -CompressionLevel Optimal
+          }
 
       - name: Create the GitHub release
         shell: pwsh
@@ -57,4 +66,4 @@ jobs:
           $version = $tag.TrimStart('v')
           $flags = @('--generate-notes', '--title', "Fieldkit $version")
           if ($tag.Contains('-') -or $version.StartsWith('0.')) { $flags += '--prerelease' }
-          gh release create $tag "artifacts/Fieldkit-$version-win-x64.exe" "artifacts/Fieldkit-$version-win-arm64.exe" @flags
+          gh release create $tag "artifacts/Fieldkit-$version-win-x64.zip" "artifacts/Fieldkit-$version-win-arm64.zip" @flags

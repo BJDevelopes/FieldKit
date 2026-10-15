@@ -35,8 +35,10 @@ if ($Parity) {
 
 if ($Publish) {
     $out = Join-Path $root "artifacts/$Runtime"
+    # Not compressed: a compressed single-file app unpacks its assemblies into memory and keeps them
+    # there (about 240 MB idle instead of about 40 MB) and starts twice as slowly. Releases are zipped instead.
     dotnet publish "$root/src/Fieldkit/Fieldkit.csproj" -c Release -r $Runtime --self-contained true `
-        -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:PublishReadyToRun=true -p:DebugType=none -o $out
+        -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=false -p:PublishReadyToRun=false -p:DebugType=none -o $out
     if ($LASTEXITCODE) { exit $LASTEXITCODE }
     Write-Host "Published to $out"
 }
