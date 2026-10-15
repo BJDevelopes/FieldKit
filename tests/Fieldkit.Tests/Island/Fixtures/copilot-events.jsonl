@@ -1,0 +1,8 @@
+{"type":"session.start","id":"e1","timestamp":"2026-10-14T10:00:00.000Z","data":{"sessionId":"s-copilot","selectedModel":"claude-sonnet-4.5","context":{"cwd":"/home/u/copilot-proj"}}}
+{"type":"user.message","id":"e2","timestamp":"2026-10-14T10:00:01.000Z","data":{"content":"hello"}}
+{"type":"assistant.message","id":"e3","timestamp":"2026-10-14T10:00:05.000Z","data":{"messageId":"m1","apiCallId":"call1","toolRequests":[{"name":"bash"}]}}
+{"type":"assistant.turn_end","id":"e4","timestamp":"2026-10-14T10:00:06.000Z","data":{"turnId":"0"}}
+{"type":"assistant.message","id":"e5","timestamp":"2026-10-14T10:00:20.000Z","agentId":"sub1","data":{"messageId":"m2","model":"gpt-5"}}
+{"type":"assistant.message","id":"e6","timestamp":"2026-10-14T10:00:30.000Z","data":{"messageId":"m3","apiCallId":"call2","toolRequests":[]}}
+{"type":"assistant.turn_end","id":"e7","timestamp":"2026-10-14T10:00:31.000Z","data":{"turnId":"1"}}
+{"type":"session.shutdown","id":"e8","timestamp":"2026-10-14T10:05:00.000Z","data":{"modelMetrics":{"claude-sonnet-4.5":{"requests":{"count":2},"usage":{"inputTokens":1000,"outputTokens":200,"cacheReadTokens":3000,"cacheWriteTokens":0}},"gpt-5":{"requests":{"count":1},"usage":{"inputTokens":100,"outputTokens":10}}}}}

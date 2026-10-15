@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      DOTNET_NOLOGO: true
+      EXE: src/Fieldkit/bin/Release/net8.0-windows10.0.19041.0/Fieldkit.exe
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # The runner context is not available in job-level env, so the isolated data folder is set here.
+      - name: Isolate app data
+        shell: pwsh
+        run: '"FIELDKIT_DATA_DIR=$env:RUNNER_TEMP\fieldkit-ci" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8'
+
+      - name: Build
+        run: dotnet build Fieldkit.sln -c Release -warnaserror
+
+      - name: Test
+        run: dotnet test Fieldkit.sln -c Release --no-build
+
+      - name: Selftest
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath $env:EXE -ArgumentList '--selftest' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content "$env:FIELDKIT_DATA_DIR\fieldkit.log" -ErrorAction SilentlyContinue; exit 1 }
+
+      - name: Parity map is current
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath $env:EXE -ArgumentList '--write-parity','parity.generated.md' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { exit 1 }
+          $a = (Get-Content parity.generated.md -Raw) -replace "`r",""
+          $b = (Get-Content docs/PARITY.md -Raw) -replace "`r",""
+          if ($a -ne $b) { Write-Error "docs/PARITY.md is stale: run Fieldkit.exe --write-parity docs/PARITY.md"; exit 1 }
+
+      - name: Publish single-file exe
+        if: github.event_name == 'push'
+        run: >
+          dotnet publish src/Fieldkit/Fieldkit.csproj -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:PublishReadyToRun=true -p:DebugType=none -o artifacts/win-x64
+
+      - name: Upload exe
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fieldkit-win-x64
+          path: artifacts/win-x64/Fieldkit.exe
+          retention-days: 14

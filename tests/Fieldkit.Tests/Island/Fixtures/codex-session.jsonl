@@ -1,0 +1,8 @@
+{"timestamp":"2026-10-14T10:00:00.000Z","type":"session_meta","payload":{"id":"sess-codex","cwd":"/home/u/proj"}}
+{"timestamp":"2026-10-14T10:00:00.100Z","type":"turn_context","payload":{"model":"gpt-5","cwd":"/home/u/proj"}}
+{"timestamp":"2026-10-14T10:00:01.000Z","type":"event_msg","payload":{"type":"task_started","started_at":1791972000}}
+{"timestamp":"2026-10-14T10:00:20.000Z","type":"response_item","payload":{"type":"message","content":"ignored"}}
+{"timestamp":"2026-10-14T10:00:30.000Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":1000,"cached_input_tokens":400,"output_tokens":200,"reasoning_output_tokens":50},"last_token_usage":{"input_tokens":1000,"cached_input_tokens":400,"output_tokens":200,"reasoning_output_tokens":50}},"rate_limits":{"limit_id":"codex","plan_type":"plus","primary":{"used_percent":12.5,"window_minutes":300,"resets_at":1791975600},"secondary":{"used_percent":40.0,"window_minutes":10080,"resets_in_seconds":86400}}}}
+{"timestamp":"2026-10-14T10:00:31.000Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":1000,"cached_input_tokens":400,"output_tokens":200,"reasoning_output_tokens":50}},"rate_limits":{"limit_id":"codex_other","primary":{"used_percent":99,"window_minutes":300}}}}
+{"timestamp":"2026-10-14T10:01:00.000Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":1500,"cached_input_tokens":600,"output_tokens":300},"last_token_usage":{"input_tokens":500,"cached_input_tokens":200,"output_tokens":100}}}}
+{"timestamp":"2026-10-14T10:01:30.000Z","type":"event_msg","payload":{"type":"task_complete","completed_at":1791972090,"duration_ms":90000}}

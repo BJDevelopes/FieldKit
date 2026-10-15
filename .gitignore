@@ -1,0 +1,21 @@
+# upstream reference clone (not part of this project)
+/repo/
+bin/
+obj/
+*.user
+.vs/
+/artifacts/
+
+# agent worktrees and local tool state
+/.claude/
+
+# never commit local logs, test output, secrets or IDE state
+*.log
+TestResults/
+.env
+.env.*
+*.pfx
+*.snk
+*.p12
+.idea/
+*.DotSettings.user

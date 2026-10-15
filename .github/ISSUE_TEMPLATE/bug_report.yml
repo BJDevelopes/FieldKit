@@ -1,0 +1,57 @@
+name: Bug report
+description: Something does not work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Security problems go through [private reporting](https://github.com/BJDevelopes/FieldKit/security/advisories/new), not here.
+  - type: input
+    id: feature
+    attributes:
+      label: Feature
+      description: Which feature is affected (as named in Settings → Features)?
+      placeholder: Volume mixer
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the panel
+        2. ...
+  - type: input
+    id: version
+    attributes:
+      label: Fieldkit version
+      description: Settings → About.
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Press Win+R, type winver.
+      placeholder: Windows 11 24H2 (26100.1234)
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup details
+      description: "Anything relevant: displays and scaling, keyboard layout, mouse or touchpad, running as administrator, other tools such as PowerToys."
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: Relevant lines from fieldkit.log (Settings → About → Open log folder). Check them for anything private first.
+      render: text

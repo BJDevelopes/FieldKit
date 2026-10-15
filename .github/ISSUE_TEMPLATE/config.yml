@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/BJDevelopes/FieldKit/security/advisories/new
+    about: Please report security problems privately.
+  - name: Troubleshooting guide
+    url: https://github.com/BJDevelopes/FieldKit/blob/main/docs/TROUBLESHOOTING.md
+    about: Missing tray icon, shortcuts that do nothing, temperatures, ffmpeg, winget.

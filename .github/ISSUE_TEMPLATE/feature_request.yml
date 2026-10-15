@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest an improvement or a new feature.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What are you trying to do, and what gets in the way today?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How should it work? Mention shortcuts, settings or permissions it would need.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature area
+      options:
+        - Windows and taskbar
+        - Mouse and keyboard
+        - Clipboard and files
+        - Sound
+        - Energy and display
+        - Tools
+        - Dynamic Island
+        - System monitor
+        - Panel or Settings
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: upstream
+    attributes:
+      label: Parity with the macOS original
+      description: If this is something Vorssaint does that Fieldkit does not (or does differently), link the feature or the parity map entry.
+  - type: textarea
+    id: references
+    attributes:
+      label: Mockups or references
+      description: Screenshots, other apps that do this, links.

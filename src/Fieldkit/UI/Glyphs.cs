@@ -1,0 +1,114 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+namespace Fieldkit.UI;
+
+/// <summary>
+/// Segoe Fluent Icons code points (falls back to Segoe MDL2 Assets on Windows 10,
+/// which shares the same code points). The Windows counterpart of SF Symbols.
+/// </summary>
+public static class Glyphs
+{
+    public const string FontFamily = "Segoe Fluent Icons, Segoe MDL2 Assets";
+
+    public const string Settings = "\uE713";
+    public const string Power = "\uE7E8";
+    public const string Moon = "\uE708";
+    public const string Volume = "\uE767";
+    public const string Mute = "\uE74F";
+    public const string Mixer = "\uE9E9";
+    public const string Microphone = "\uE720";
+    public const string Speaker = "\uE7F5";
+    public const string Headphones = "\uE7F6";
+    public const string MusicNote = "\uEC4F";
+    public const string Cpu = "\uE950";
+    public const string Memory = "\uEEA0";
+    public const string Gpu = "\uE7F4";
+    public const string Globe = "\uE774";
+    public const string Network = "\uE968";
+    public const string Wifi = "\uE701";
+    public const string HardDrive = "\uEDA2";
+    public const string Bolt = "\uE945";
+    public const string Battery = "\uE83F";
+    public const string Tools = "\uE90F";
+    public const string Toggles = "\uF19F";
+    public const string Switcher = "\uE7C4";
+    public const string Taskbar = "\uE75B";
+    public const string Maximize = "\uE740";
+    public const string Layout = "\uF0E2";
+    public const string CloseBox = "\uE8BB";
+    public const string Desktops = "\uE8A9";
+    public const string Mouse = "\uE962";
+    public const string Keyboard = "\uE765";
+    public const string ArrowsUpDown = "\uE8CB";
+    public const string ArrowsLeftRight = "\uE8AB";
+    public const string Pointer = "\uE7C9";
+    public const string Shield = "\uEA18";
+    public const string Clipboard = "\uE77F";
+    public const string Copy = "\uE8C8";
+    public const string Document = "\uE8A5";
+    public const string Cut = "\uE8C6";
+    public const string Rename = "\uE8AC";
+    public const string Tray = "\uE7B8";
+    public const string Link = "\uE71B";
+    public const string Disc = "\uE958";
+    public const string Brightness = "\uE706";
+    public const string Display = "\uE7F4";
+    public const string Bluetooth = "\uE702";
+    public const string Wand = "\uED37";
+    public const string Grid = "\uF0E2";
+    public const string Eyedropper = "\uEF3C";
+    public const string TextScan = "\uE8FD";
+    public const string Sparkle = "\uED37";
+    public const string Photo = "\uEB9F";
+    public const string Broom = "\uEA99";
+    public const string Delete = "\uE74D";
+    public const string Package = "\uE7B8";
+    public const string Download = "\uE896";
+    public const string Camera = "\uE722";
+    public const string Webcam = "\uE8B8";
+    public const string Record = "\uE7C8";
+    public const string Radial = "\uF1BE";
+    public const string Note = "\uE70B";
+    public const string Command = "\uE756";
+    public const string Wallpaper = "\uE7F7";
+    public const string Stop = "\uE71A";
+    public const string Plug = "\uE83E";
+    public const string Island = "\uE7F8";
+    public const string Calendar = "\uE787";
+    public const string Bell = "\uEA8F";
+    public const string Gesture = "\uE7F2";
+    public const string Timer = "\uE916";
+    public const string Lyrics = "\uE8BD";
+    public const string List = "\uE8FD";
+    public const string Waveform = "\uE9D9";
+    public const string Robot = "\uE99A";
+    public const string Eye = "\uE7B3";
+    public const string Smile = "\uE76E";
+    public const string Usb = "\uE88E";
+    public const string Fan = "\uE9CA";
+    public const string Search = "\uE721";
+    public const string ChevronRight = "\uE76C";
+    public const string ChevronDown = "\uE70D";
+    public const string ChevronUp = "\uE70E";
+    public const string Refresh = "\uE72C";
+    public const string Undo = "\uE7A7";
+    public const string Pin = "\uE718";
+    public const string Unpin = "\uE77A";
+    public const string Add = "\uE710";
+    public const string Remove = "\uE738";
+    public const string Close = "\uE711";
+    public const string Check = "\uE73E";
+    public const string Info = "\uE946";
+    public const string Warning = "\uE7BA";
+    public const string Lock = "\uE72E";
+    public const string Clock = "\uE823";
+    public const string Play = "\uE768";
+    public const string Pause = "\uE769";
+    public const string Next = "\uE893";
+    public const string Previous = "\uE892";
+    public const string Star = "\uE734";
+    public const string Puzzle = "\uEA86";
+    public const string Folder = "\uE8B7";
+    public const string Calculator = "\uE8EF";
+    public const string Edit = "\uE70F";
+    public const string Share = "\uE72D";
+}
