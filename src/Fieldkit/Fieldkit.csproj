@@ -13,7 +13,7 @@
     <ApplicationIcon>Assets\Fieldkit.ico</ApplicationIcon>
     <AssemblyName>Fieldkit</AssemblyName>
     <RootNamespace>Fieldkit</RootNamespace>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Product>Fieldkit</Product>
     <Description>One tray icon doing the job of a dozen Windows utilities.</Description>
     <Copyright>GPL-3.0-or-later</Copyright>

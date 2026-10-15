@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Fieldkit.Features.Island.Mascot;
 using Fieldkit.Features.Island.Media;
 using Fieldkit.Features.Island.Timer;
@@ -519,10 +520,16 @@ public sealed class MascotView : FrameworkElement
         _blinkAt = 2.6 + _random.NextDouble() * 3.8;
         if (animate)
         {
-            Loaded += (_, _) => CompositionTarget.Rendering += OnFrame;
-            Unloaded += (_, _) => CompositionTarget.Rendering -= OnFrame;
+            // Only a blink every few seconds and a short hop on reactions move: a timer wakes for those alone.
+            // (CompositionTarget.Rendering would keep the whole island redrawing at 60 frames a second.)
+            _frames = new DispatcherTimer(DispatcherPriority.Render);
+            _frames.Tick += (_, _) => OnFrame();
+            Loaded += (_, _) => ScheduleFrame();
+            Unloaded += (_, _) => _frames.Stop();
         }
     }
+
+    private readonly DispatcherTimer? _frames;
 
     public MascotMood Mood { get; set; }
 
@@ -531,21 +538,31 @@ public sealed class MascotView : FrameworkElement
         _reaction = reaction;
         _reactionStart = _clock.Elapsed.TotalSeconds;
         InvalidateVisual();
+        ScheduleFrame();
     }
 
-    private double _lastFrame;
-
-    private void OnFrame(object? sender, EventArgs e)
+    private void OnFrame()
     {
         var t = _clock.Elapsed.TotalSeconds;
-        if (t - _lastFrame < 1 / 30.0) return;
-        _lastFrame = t;
         if (t >= _blinkAt)
         {
             _blinkUntil = t + 0.17;
             _blinkAt = t + 2.6 + _random.NextDouble() * 3.8;
         }
         InvalidateVisual();
+        ScheduleFrame();
+    }
+
+    /// <summary>30 frames a second during a reaction; otherwise one wake to open the eyes and one for the next blink.</summary>
+    private void ScheduleFrame()
+    {
+        if (_frames is null || !IsLoaded) return;
+        var t = _clock.Elapsed.TotalSeconds;
+        var reacting = _reaction is { } r && t - _reactionStart < MascotLogic.Length(r) + 0.05;
+        var next = reacting ? 1 / 30.0 : t < _blinkUntil ? _blinkUntil - t : _blinkAt - t;
+        _frames.Stop();
+        _frames.Interval = TimeSpan.FromSeconds(Math.Max(1 / 60.0, next));
+        _frames.Start();
     }
 
     protected override void OnRender(DrawingContext dc)

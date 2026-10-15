@@ -307,6 +307,15 @@ public static class FeatureCatalog
                 "The keyboard hook swallows a remapped key or shortcut and sends its target, per app if wanted; plain keys keep " +
                 "their modifiers, shortcuts lift the ones the target does not use. Upstream pull request #2742.",
                 Extra: true),
+            new("blockApps", T, "Block apps", "Keep distracting apps closed, always or on a schedule", Glyphs.Stop, EnergyProfile.Idle,
+                "An out-of-process window-show hook closes listed apps as they open (no administrator rights, no system-wide " +
+                "change); a schedule asks open ones to close normally when it starts. Upstream issue #2965.",
+                Extra: true),
+            new("browserPicker", T, "Browser picker", "Choose which browser opens each link", Glyphs.Link, EnergyProfile.Idle,
+                "Registers as a browser for the current user (HKCU, no administrator rights); chosen as the default in Windows' " +
+                "Default apps, each http(s) link shows a picker of installed browsers, or opens straight in the one a site rule names. " +
+                "Upstream issue #2861.",
+                Extra: true),
         ];
     }
 }

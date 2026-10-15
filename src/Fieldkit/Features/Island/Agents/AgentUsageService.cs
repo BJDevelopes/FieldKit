@@ -18,6 +18,11 @@ public sealed class AgentUsageService : IslandExtensionService
 {
     private static readonly TimeSpan FastPoll = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan Tick = TimeSpan.FromSeconds(30);
+    /// <summary>
+    /// A working agent writes its log many times a second and every write wakes the reader; passes (and the
+    /// summary rebuild after them) are spaced at least this far apart so following live work stays cheap.
+    /// </summary>
+    private static readonly TimeSpan MinimumPass = TimeSpan.FromSeconds(1.5);
     private static readonly TimeSpan IdleTurn = TimeSpan.FromSeconds(AgentLogParser.IdleTurn);
 
     private readonly object _gate = new();
@@ -89,15 +94,24 @@ public sealed class AgentUsageService : IslandExtensionService
                     Read(Cursor(path, provider), DateTimeOffset.UtcNow);
                 }
                 CloseEndedClaudeTurns();
+                // History read in one go leaves every turn that never logged its end looking live; retire the idle ones
+                // now rather than at the first 30 s tick, so the island never opens on months-old "working" timers.
+                var now = DateTimeOffset.UtcNow;
+                _store.CloseIdleTurns(now, IdleTurn);
+                _store.CloseSettledTurns(now);
                 _store.ReportsTransitions = true;
             }
             Ui.OnUi(WatchRoots);
             Publish(firstPublish: true);
             var lastTick = DateTime.UtcNow;
+            var lastPass = DateTime.UtcNow;
             while (!token.IsCancellationRequested)
             {
                 wake.WaitOne(FastPoll);
+                var sinceLast = DateTime.UtcNow - lastPass;
+                if (sinceLast < MinimumPass) token.WaitHandle.WaitOne(MinimumPass - sinceLast);
                 if (token.IsCancellationRequested) break;
+                lastPass = DateTime.UtcNow;
                 var now = DateTimeOffset.UtcNow;
                 var events = new List<AgentUsageEvent>();
                 bool broad;
@@ -161,20 +175,30 @@ public sealed class AgentUsageService : IslandExtensionService
 
     private List<AgentUsageEvent> Read(AgentLogCursor cursor, DateTimeOffset now)
     {
-        var lines = cursor.Provider == AgentProvider.OpenCode
-            ? OpenCodeReader.ReadAppended(cursor, now - AgentUsageStore.Horizon)
-            : AgentLogReader.ReadAppended(cursor);
-        if (cursor.Provider == AgentProvider.OpenCode) cursor.Modified = AgentLogReader.Modified(cursor.Path);
-        _linesRead += lines.Count;
         var events = new List<AgentUsageEvent>();
         var tracks = cursor.TracksTurns;
         var parent = cursor.Provider == AgentProvider.Claude ? AgentLogReader.ClaudeParent(cursor.Path) : null;
-        var modified = new DateTimeOffset(cursor.Modified == default ? DateTime.UtcNow : cursor.Modified, TimeSpan.Zero);
-        foreach (var line in lines)
+        if (cursor.Provider == AgentProvider.OpenCode)
         {
-            if (line.Length == 0) continue;
+            var rows = OpenCodeReader.ReadAppended(cursor, now - AgentUsageStore.Horizon);
+            cursor.Modified = AgentLogReader.Modified(cursor.Path);
+            _linesRead += rows.Count;
+            foreach (var row in rows) Handle(row);
+        }
+        else
+        {
+            // Lines are parsed as they are read: a log can be hundreds of MB and must never sit in memory whole.
+            _linesRead += AgentLogReader.ReadAppended(cursor, Handle);
+        }
+        return events;
+
+        void Handle(string line)
+        {
+            if (line.Length == 0) return;
             var entries = AgentLogParser.Parse(cursor.Provider, line, cursor.State, now);
-            if (entries.Count == 0) continue;
+            if (entries.Count == 0) return;
+            // Set by the reader before the first line.
+            var modified = new DateTimeOffset(cursor.Modified == default ? DateTime.UtcNow : cursor.Modified, TimeSpan.Zero);
             var file = cursor.Path;
             var parentFile = parent;
             if (cursor.Provider == AgentProvider.OpenCode)
@@ -186,12 +210,11 @@ public sealed class AgentUsageService : IslandExtensionService
                 {
                     parentFile = file;
                     events.AddRange(_store.Apply(entries, file, cursor.Provider, false, parentFile, modified, now));
-                    continue;
+                    return;
                 }
             }
             events.AddRange(_store.Apply(entries, file, cursor.Provider, tracks, parentFile, modified, now));
         }
-        return events;
     }
 
     /// <summary>Claude Code records running sessions in ~/.claude/sessions/&lt;pid&gt;.json: a turn whose process is gone is over.</summary>

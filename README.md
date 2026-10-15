@@ -77,7 +77,7 @@ already provides (F2 rename, cut and paste in Explorer, fixed virtual desktop or
 built into Windows and point at the system setting.
 
 Fieldkit also has a few extras that Vorssaint does not ship, mostly ideas from its issues and pull
-requests: break reminders, duplicate files, disk usage and key remapping. They start uninstalled;
+requests: break reminders, duplicate files, disk usage, key remapping, block apps and a browser picker. They start uninstalled;
 add them in Settings → Features.
 
 ## Privacy

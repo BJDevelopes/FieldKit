@@ -85,6 +85,22 @@ public class AgentUsageTests
     }
 
     [Fact]
+    public void ActivityAfterALongGapStartsANewTurnEvenInOneBigRead()
+    {
+        // Reading months of history in one go (no 30 s idle checks in between) must not stretch a turn across the gap.
+        var store = new AgentUsageStore();
+        var later = T0.AddDays(82);
+        store.Apply([new AgentLogEntry.TurnBegan(T0)], "f", AgentProvider.Claude, true, null, T0, later);
+        store.Apply([new AgentLogEntry.TurnActive(T0.AddMinutes(5))], "f", AgentProvider.Claude, true, null, T0, later);
+        store.Apply([new AgentLogEntry.TurnActive(later)], "f", AgentProvider.Claude, true, null, later, later);
+        Assert.Equal(later, Assert.Single(store.Live).Started);
+
+        // Within the resume window it is the same turn.
+        store.Apply([new AgentLogEntry.TurnActive(later.AddMinutes(20))], "f", AgentProvider.Claude, true, null, later, later.AddMinutes(20));
+        Assert.Equal(later, Assert.Single(store.Live).Started);
+    }
+
+    [Fact]
     public void CodexTotalsBecomeDeltasAndLimitsComeFromTheMainBucket()
     {
         var (store, events) = Run(AgentProvider.Codex, "codex-session.jsonl", T0.AddSeconds(100));

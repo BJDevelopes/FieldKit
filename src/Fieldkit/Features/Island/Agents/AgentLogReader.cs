@@ -139,13 +139,24 @@ public static class AgentLogReader
     public static List<string> ReadAppended(AgentLogCursor cursor)
     {
         var lines = new List<string>();
+        ReadAppended(cursor, lines.Add);
+        return lines;
+    }
+
+    /// <summary>
+    /// Hands each line appended since the cursor to <paramref name="onLine"/> as soon as it is read, so memory
+    /// follows the longest line rather than the file: a session log can be hundreds of MB. Returns the line count.
+    /// </summary>
+    public static int ReadAppended(AgentLogCursor cursor, Action<string> onLine)
+    {
+        var count = 0;
         FileStream stream;
         try
         {
             stream = new FileStream(cursor.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, 1, FileOptions.SequentialScan);
         }
-        catch (IOException) { return lines; }
-        catch (UnauthorizedAccessException) { return lines; }
+        catch (IOException) { return count; }
+        catch (UnauthorizedAccessException) { return count; }
         using (stream)
         {
             var size = stream.Length;
@@ -155,7 +166,7 @@ public static class AgentLogReader
             cursor.Identity = identity;
             cursor.Size = size;
             cursor.Modified = File.GetLastWriteTimeUtc(cursor.Path);
-            if (size == cursor.Offset) return lines;
+            if (size == cursor.Offset) return count;
             stream.Position = cursor.Offset;
             var buffer = new byte[(int)Math.Min(ChunkSize, Math.Max(1, size - cursor.Offset))];
             var pending = new MemoryStream();
@@ -171,7 +182,11 @@ public static class AgentLogReader
                     if (!skipping)
                     {
                         pending.Write(buffer, start, i - start);
-                        if (pending.Length > 0) lines.Add(Encoding.UTF8.GetString(pending.GetBuffer(), 0, (int)pending.Length).TrimEnd('\r'));
+                        if (pending.Length > 0)
+                        {
+                            onLine(Encoding.UTF8.GetString(pending.GetBuffer(), 0, (int)pending.Length).TrimEnd('\r'));
+                            count++;
+                        }
                     }
                     pending.SetLength(0);
                     skipping = false;
@@ -192,7 +207,7 @@ public static class AgentLogReader
             cursor.Skipping = skipping;
             cursor.Fingerprint = Fingerprint(stream, cursor.Offset);
         }
-        return lines;
+        return count;
     }
 
     /// <summary>FNV-1a 64 over the offset, the first 4 KB and the 4 KB before the offset.</summary>

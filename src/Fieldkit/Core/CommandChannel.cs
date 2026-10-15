@@ -69,7 +69,10 @@ public static class CommandChannel
         }
     }
 
-    /// <summary>Runs a command line ("action &lt;id&gt;", "panel [section]") and returns a one-line reply.</summary>
+    /// <summary>Set by the browser picker: opens a link (the reply is "ok" or "error: …").</summary>
+    public static Func<string, string>? OpenUrl;
+
+    /// <summary>Runs a command line ("action &lt;id&gt;", "panel [section]", "open-url &lt;url&gt;") and returns a one-line reply.</summary>
     public static string Handle(string line)
     {
         var parts = line.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -79,6 +82,7 @@ public static class CommandChannel
         return parts[0] switch
         {
             "action" when parts.Length == 2 => dispatcher.Invoke(() => RunAction(parts[1])),
+            "open-url" when parts.Length == 2 => dispatcher.Invoke(() => OpenUrl?.Invoke(parts[1]) ?? "error: browser picker unavailable"),
             "panel" => dispatcher.Invoke(() =>
             {
                 PanelHost.Show(parts.Length == 2 ? parts[1] : null);

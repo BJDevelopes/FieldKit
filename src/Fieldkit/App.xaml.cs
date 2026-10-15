@@ -99,6 +99,24 @@ public partial class App : Application
             }
             args = args.Where((_, i) => i != actionIndex && i != actionIndex + 1).Append("--background").ToArray();
         }
+        // A link from Windows (Fieldkit chosen as the default browser): the running instance shows the picker.
+        string? pendingUrl = null;
+        var urlIndex = Array.IndexOf(args, "--open-url");
+        if (urlIndex >= 0)
+        {
+            if (urlIndex + 1 >= args.Length)
+            {
+                Shutdown(2);
+                return;
+            }
+            pendingUrl = args[urlIndex + 1];
+            if (CommandChannel.Send("open-url " + pendingUrl) is not null)
+            {
+                Shutdown(0);
+                return;
+            }
+            args = args.Where((_, i) => i != urlIndex && i != urlIndex + 1).Append("--background").ToArray();
+        }
         if (args.Length > 0 && !args.Any(toolingSwitches.Contains) && !args.All(launchSwitches.Contains))
         {
             Console.Error.WriteLine($"Unknown arguments: {string.Join(' ', args)}");
@@ -202,6 +220,12 @@ public partial class App : Application
         FeatureRuntime.Start();
         ListenForShowRequests();
         CommandChannel.Listen();
+        if (pendingUrl is not null)
+        {
+            var url = pendingUrl;
+            Dispatcher.BeginInvoke(() => Log.Info($"Startup link: {CommandChannel.OpenUrl?.Invoke(url) ?? "no browser picker"}"),
+                System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
         if (pendingAction is not null)
         {
             var id = pendingAction;

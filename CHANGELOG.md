@@ -3,6 +3,25 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
+## 0.3.0 (2026-10-15)
+
+New Fieldkit extras (they start uninstalled; add them in Settings → Features):
+
+- **Block apps:** listed apps are closed as soon as they open, always or on a schedule (overnight schedules
+  work). When a block starts, open ones are asked to close normally. Windows' own programs can't be blocked.
+- **Browser picker:** register Fieldkit as a browser (your account only), choose it as the default in Windows'
+  Default apps, and every link asks which browser to use, or opens straight in the one you chose for that site.
+
+Also:
+
+- **Dynamic Island in the taskbar:** Settings → Dynamic Island → Where, or right-click the island. It takes
+  the Fieldkit button's spot next to the notification area and opens upward, so it never covers browser tabs.
+- **AI agents uses far less memory:** session logs are read line by line instead of whole (a heavy Claude
+  Code user went from about 1.2 GB to about 120 MB), and live updates are spaced out while an agent writes.
+- AI agents no longer shows months-old "working" timers right after Fieldkit starts.
+- The island's companion only redraws when it blinks or reacts, instead of keeping the island drawing at
+  60 frames a second.
+
 ## 0.2.0 (2026-10-15)
 
 - **Join meetings from the Dynamic Island:** calendar events with a Teams, Zoom, Google Meet, Webex, GoTo,

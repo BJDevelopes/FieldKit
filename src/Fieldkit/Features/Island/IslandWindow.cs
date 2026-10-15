@@ -52,6 +52,10 @@ public sealed class IslandWindow : Window
     private string? _collapsedSignature;
     private (MascotReaction Reaction, double Until)? _cameo;
     private IntPtr _monitor;
+    private TaskbarPlacement? _dock;
+    private IntPtr _owner;
+    private Thickness _restMargin = new(0, TopGap, 0, 0);
+    private Thickness _openMargin = new(0, TopGap, 0, 0);
 
     public IslandWindow(IslandContext ctx)
     {
@@ -174,6 +178,7 @@ public sealed class IslandWindow : Window
         _closeTimer.Stop();
         _noticeTimer.Stop();
         _source?.RemoveHook(WndProc);
+        TaskbarButton.IslandInTaskbar = false;
         Close();
     }
 
@@ -249,19 +254,56 @@ public sealed class IslandWindow : Window
         return primary.Handle == IntPtr.Zero && monitors.Count > 0 ? (monitors[0].Handle, monitors[0].Bounds) : (primary.Handle, primary.Bounds);
     }
 
+    /// <summary>Asked to live in the taskbar (in the Fieldkit button's spot) rather than at the top of the screen.</summary>
+    private static bool WantsTaskbar => Settings.GetString(IslandKeys.Placement, "top") == "taskbar";
+
     private void Reposition()
     {
         if (_hwnd == IntPtr.Zero) return;
-        var (handle, bounds) = TargetMonitor();
+        // The taskbar spot needs a bottom taskbar that does not auto-hide; otherwise the island stays at the top.
+        _dock = WantsTaskbar ? TaskbarDock.Find() : null;
+        TaskbarButton.IslandInTaskbar = _dock is not null;
+        var (handle, bounds) = _dock is { } d ? (d.Monitor, WindowHelper.GetMonitorInfo(d.Monitor).rcMonitor) : TargetMonitor();
         _monitor = handle;
         var scale = Native.GetDpiForMonitor(handle, 0, out var dpi, out _) == 0 ? dpi / 96.0 : 1.0;
         var widthDip = Math.Max(_nav.Width, 600) + ShadowMargin * 2;
         var heightDip = 46 + _nav.Budget + 240 + ShadowMargin;
         var w = (int)Math.Ceiling(widthDip * scale);
         var h = (int)Math.Ceiling(heightDip * scale);
-        var x = bounds.Left + (bounds.Width - w) / 2;
-        Native.SetWindowPos(_hwnd, Native.HWND_TOPMOST, x, bounds.Top, w, h, Native.SWP_NOACTIVATE);
+        if (_dock is { } dock)
+        {
+            // Bottom-right of the window on the taskbar spot: the pill opens upward and to the left from there.
+            var taskbarDip = dock.Bounds.Height / scale;
+            _pill.HorizontalAlignment = HorizontalAlignment.Right;
+            _pill.VerticalAlignment = VerticalAlignment.Bottom;
+            // Closed: centred on the taskbar. Open: standing just above it, like a flyout.
+            _restMargin = new Thickness(0, 0, ShadowMargin, Math.Max(2, (taskbarDip - IslandCollapsed.Height) / 2));
+            _openMargin = new Thickness(0, 0, ShadowMargin, taskbarDip + 8);
+            ApplyPillMargin();
+            SetOwner(dock.Taskbar); // owned windows stay above the taskbar even when it is clicked
+            var x = Math.Max(bounds.Left, dock.Bounds.Right + (int)Math.Round(ShadowMargin * scale) - w);
+            Native.SetWindowPos(_hwnd, Native.HWND_TOPMOST, x, dock.Bounds.Bottom - h, w, h, Native.SWP_NOACTIVATE);
+            return;
+        }
+        _pill.HorizontalAlignment = HorizontalAlignment.Center;
+        _pill.VerticalAlignment = VerticalAlignment.Top;
+        _restMargin = _openMargin = new Thickness(0, TopGap, 0, 0);
+        ApplyPillMargin();
+        SetOwner(IntPtr.Zero);
+        var left = bounds.Left + (bounds.Width - w) / 2;
+        Native.SetWindowPos(_hwnd, Native.HWND_TOPMOST, left, bounds.Top, w, h, Native.SWP_NOACTIVATE);
     }
+
+    private void ApplyPillMargin() => _pill.Margin = _expanded ? _openMargin : _restMargin;
+
+    private void SetOwner(IntPtr owner)
+    {
+        if (_owner == owner) return;
+        _owner = owner;
+        Native.SetWindowLongPtr(_hwnd, GwlpHwndParent, owner);
+    }
+
+    private const int GwlpHwndParent = -8;
 
     private void OnDisplaysChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(Reposition, DispatcherPriority.Background);
 
@@ -276,7 +318,13 @@ public sealed class IslandWindow : Window
             if (hide) { Collapse(); _notice = null; }
             _pill.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
         }
-        if (Settings.GetString(IslandKeys.Display, IslandDefaults.Display) == "pointer" && !_expanded && !_hovered)
+        if (!_expanded && !_hovered && (WantsTaskbar || _dock is not null))
+        {
+            // Follow the taskbar: it can move, resize, start auto-hiding, or the notification area can grow.
+            var dock = WantsTaskbar ? TaskbarDock.Find() : null;
+            if (dock != _dock) Reposition(); // record equality: taskbar, display and spot
+        }
+        else if (Settings.GetString(IslandKeys.Display, IslandDefaults.Display) == "pointer" && !_expanded && !_hovered)
         {
             var (handle, _) = TargetMonitor();
             if (handle != _monitor) Reposition();
@@ -361,7 +409,6 @@ public sealed class IslandWindow : Window
     private void OnPillRightClick(object sender, MouseButtonEventArgs e)
     {
         if (_expanded) return;
-        var music = _ctx.Music();
         var activities = new List<IslandActivity>();
         var state = CurrentState();
         foreach (var a in Enum.GetValues<IslandActivity>())
@@ -369,18 +416,34 @@ public sealed class IslandWindow : Window
             var s = IslandCollapsed.State(_ctx, null, a, false);
             if (s.Activity == a) activities.Add(a);
         }
-        if (activities.Count < 2) return;
         var menu = new ContextMenu();
-        foreach (var a in activities)
+        if (activities.Count >= 2)
         {
-            var item = new MenuItem { Header = IslandLogic.Section(IslandLogic.ActivitySection(a))?.Title ?? a.ToString(), IsChecked = state.Activity == a };
-            item.Click += (_, _) => { _preferredActivity = a; RefreshCollapsed(force: true); };
-            menu.Items.Add(item);
+            foreach (var a in activities)
+            {
+                var item = new MenuItem { Header = IslandLogic.Section(IslandLogic.ActivitySection(a))?.Title ?? a.ToString(), IsChecked = state.Activity == a };
+                item.Click += (_, _) => { _preferredActivity = a; RefreshCollapsed(force: true); };
+                menu.Items.Add(item);
+            }
+            menu.Items.Add(new Separator());
         }
-        _ = music;
+        // The switch between the two spots, one right-click away (at the top the island can cover browser tabs).
+        var inTaskbar = WantsTaskbar;
+        menu.Items.Add(MenuItem(inTaskbar ? "Move to the top of the screen" : "Move to the taskbar",
+            () => Settings.Set(IslandKeys.Placement, inTaskbar ? "top" : "taskbar")));
+        menu.Items.Add(MenuItem("Open Fieldkit panel", () => PanelHost.Show()));
+        menu.Items.Add(MenuItem("Dynamic Island settings…", () => PanelHost.OpenSettings("island")));
         menu.PlacementTarget = _pill;
+        menu.Placement = _dock is not null ? System.Windows.Controls.Primitives.PlacementMode.Top : System.Windows.Controls.Primitives.PlacementMode.Bottom;
         menu.IsOpen = true;
         e.Handled = true;
+    }
+
+    private static MenuItem MenuItem(string header, Action action)
+    {
+        var item = new MenuItem { Header = header };
+        item.Click += (_, _) => Ui.Guard(action);
+        return item;
     }
 
     private void OnScroll(double dx, double dy, int timestamp, bool precise)
@@ -561,6 +624,7 @@ public sealed class IslandWindow : Window
         _expanded = false;
         _openedByHover = false;
         _nav.LyricsOpen = _nav.QueueOpen = false;
+        ApplyPillMargin();
         SetNoActivate(true);
         _pill.Cursor = Cursors.Hand;
         ((DropShadowEffect)_pill.Effect).BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromSeconds(0.2)));
@@ -578,6 +642,7 @@ public sealed class IslandWindow : Window
 
     private void Rebuild(bool animate, bool reveal = false)
     {
+        ApplyPillMargin();
         var width = IslandLogic.ExpandedWidth(SizeChoice, Settings.GetDouble(IslandKeys.CustomWidth, IslandDefaults.CustomWidth));
         var budget = IslandLogic.ContentBudget(SizeChoice, Settings.GetDouble(IslandKeys.CustomHeight, IslandDefaults.CustomHeight));
         var nav = new IslandNav

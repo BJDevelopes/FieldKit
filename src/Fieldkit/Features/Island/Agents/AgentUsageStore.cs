@@ -82,10 +82,14 @@ public sealed class AgentUsageStore
                     if (!tracksTurns) break;
                     _settled.Remove(file);
                     var moment = a.Date ?? modified;
-                    if (_turns.TryGetValue(file, out var ta) || _waiting.Remove(file, out ta))
-                        _turns[file] = ta with { LastActivity = Max(ta.LastActivity, moment) };
-                    else
-                        _turns[file] = new AgentLiveSession(file, provider, moment, moment, string.Empty, string.Empty, default, 0);
+                    // Activity long after the turn's last sign of life is a new turn. Live, CloseIdleTurns makes that
+                    // call every 30 s; reading weeks of history at once it never runs in between, so without this a
+                    // session open for months showed a turn "working" since its first day.
+                    var known = _turns.TryGetValue(file, out var ta) || _waiting.TryGetValue(file, out ta);
+                    _waiting.Remove(file);
+                    _turns[file] = known && moment - ta!.LastActivity < ResumeWindow(provider)
+                        ? ta with { LastActivity = Max(ta.LastActivity, moment) }
+                        : new AgentLiveSession(file, provider, moment, moment, string.Empty, string.Empty, default, 0);
                     break;
                 }
                 case AgentLogEntry.TurnSettled s:

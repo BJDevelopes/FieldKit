@@ -199,6 +199,9 @@ public static class IslandSettingsPage
             Row("When reopening", null, reopenChoice),
             Ui.ToggleRow("Open the visible activity", "When the closed island shows music, a timer or another activity, it opens on that page instead.",
                 IslandKeys.OpensActivity, true),
+            Ui.ChoiceRow("Where", IslandKeys.Placement, [("top", "Top of the screen"), ("taskbar", "In the taskbar")], "top",
+                "In the taskbar it takes the Fieldkit button's spot next to the notification area and opens upward, so it never covers browser tabs. " +
+                "Right-click the island to switch."),
             Ui.ChoiceRow("Display", IslandKeys.Display, displays, IslandDefaults.Display),
             Ui.ToggleRow("Hide content in full screen", "Hides the island while a full-screen app or presentation covers its display.", IslandKeys.HideInFullscreen, true),
             Ui.ToggleRow("Show in screenshots and videos", null, IslandKeys.ShowInCaptures, true),

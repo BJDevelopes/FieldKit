@@ -23,6 +23,9 @@ public sealed class TaskbarButton : Window
 {
     public const string EnabledKey = "general.taskbarButton";
 
+    /// <summary>Set while the Dynamic Island sits in the taskbar, in this button's spot: the button steps aside.</summary>
+    public static volatile bool IslandInTaskbar;
+
     private readonly Border _surface;
     private readonly Canvas _mark = new();
     private readonly Ellipse _dot = new() { Width = 7, Height = 7, Visibility = Visibility.Collapsed };
@@ -108,7 +111,7 @@ public sealed class TaskbarButton : Window
     private void Update()
     {
         if (_hwnd == IntPtr.Zero) return;
-        var placement = Settings.GetBool(EnabledKey, true) ? TaskbarDock.Find() : null;
+        var placement = Settings.GetBool(EnabledKey, true) && !IslandInTaskbar ? TaskbarDock.Find() : null;
         if (placement is not { } p || TaskbarDock.ForegroundIsFullScreen(p.Monitor))
         {
             if (IsVisible) Hide();
