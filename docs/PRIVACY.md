@@ -15,6 +15,7 @@ Everything Fieldkit stores lives in `%APPDATA%\Fieldkit`:
 | Preferences | `settings.json` |
 | Clipboard history, pinned items and copied images | the clipboard folder, only while Clipboard history is on |
 | Text snippets, scratchpad notes, shelf items | their own files |
+| Quick notes from the Dynamic Island | `Notes\notes.json` (never part of the settings export) |
 | Diagnostics | `fieldkit.log` (rotated at 1 MB; contains no clipboard or typed text) |
 
 Settings export (Settings → General → Backup) contains preferences only. Clipboard history, snippets,

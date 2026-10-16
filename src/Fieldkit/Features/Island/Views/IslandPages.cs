@@ -25,6 +25,8 @@ public sealed class IslandNav
     public double Budget { get; init; } = 264;
     public Action<string> Navigate { get; init; } = _ => { };
     public Action Collapse { get; init; } = () => { };
+    /// <summary>Takes keyboard focus for the island (a page with a text box calls this when it is clicked).</summary>
+    public Action Focus { get; init; } = () => { };
     /// <summary>The page asks for more height (lyrics/queue panels add 216).</summary>
     public Action Relayout { get; init; } = () => { };
     public bool LyricsOpen { get; set; }
@@ -79,6 +81,7 @@ public static class IslandPages
                 "downloads" => DownloadsPage(ctx, nav),
                 "agents" => AgentsPage.Build(ctx, nav),
                 "watch" => WatchPage(ctx, nav),
+                "notes" => NotesPage.Build(ctx, nav),
                 _ => Controls(ctx, nav, sections),
             };
         }
@@ -131,7 +134,7 @@ public static class IslandPages
             tile.MouseLeftButtonUp += (_, e) => { e.Handled = true; Ui.Guard(run); Refresh(); };
             tiles.Children.Add(tile);
         }
-        foreach (var s in sections.Where(s => s.Id is "timer" or "calendar" or "downloads" or "agents" or "watch"))
+        foreach (var s in sections.Where(s => s.Id is "timer" or "calendar" or "downloads" or "agents" or "watch" or "notes"))
             Tile(s.Glyph, s.Title, () => nav.Navigate(s.Id));
         // Shortcuts other features expose (Keep awake, Lock screen, ...): the "your shortcuts" part of upstream's Controls.
         foreach (var t in FeatureRuntime.Registry.QuickToggles.OrderBy(t => t.Order).Take(8))

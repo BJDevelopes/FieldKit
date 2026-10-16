@@ -10,6 +10,7 @@ using Fieldkit.Features.Island.Calendar;
 using Fieldkit.Features.Island.Downloads;
 using Fieldkit.Features.Island.Lyrics;
 using Fieldkit.Features.Island.Media;
+using Fieldkit.Features.Island.Notes;
 using Fieldkit.Features.Island.Timer;
 using Fieldkit.Features.Island.Watch;
 
@@ -79,6 +80,15 @@ public sealed class IslandContext
     public Action<ShelfItem> RemoveFromShelf { get; init; } = _ => { };
     public Action ClearShelf { get; init; } = () => { };
 
+    // Notes
+    public Func<IReadOnlyList<QuickNote>> Notes { get; init; } = () => [];
+    /// <summary>Adds a note; false when there was nothing to keep.</summary>
+    public Func<string, bool> AddNote { get; init; } = _ => false;
+    /// <summary>Changes a note's text; false when the text is empty or the note is gone.</summary>
+    public Func<Guid, string, bool> UpdateNote { get; init; } = (_, _) => false;
+    public Action<Guid> DeleteNote { get; init; } = _ => { };
+    public Action<Guid> TogglePinNote { get; init; } = _ => { };
+
     /// <summary>The live island: reads the running services through the hub.</summary>
     public static IslandContext Live()
     {
@@ -120,6 +130,11 @@ public sealed class IslandContext
             AddToShelf = ShelfStore.Add,
             RemoveFromShelf = ShelfStore.Remove,
             ClearShelf = ShelfStore.Clear,
+            Notes = () => NotesStore.Notes.Items,
+            AddNote = text => NotesStore.Notes.Add(text, DateTime.Now) is not null,
+            UpdateNote = (id, text) => NotesStore.Notes.Update(id, text, DateTime.Now),
+            DeleteNote = id => NotesStore.Notes.Delete(id),
+            TogglePinNote = id => NotesStore.Notes.TogglePin(id),
         };
     }
 }

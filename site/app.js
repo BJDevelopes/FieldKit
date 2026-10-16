@@ -17,8 +17,8 @@ const el = (tag, attrs = {}, ...children) => {
 };
 
 const CATEGORIES = { Essentials: "Essentials", WindowControls: "Window controls", Files: "Files", Sound: "Sound", Utilities: "Utilities", DynamicIsland: "Dynamic Island", Advanced: "Advanced" };
-const ISLAND_SECTIONS = ["controls", "music", "files", "calendar", "timer", "downloads", "agents", "watch"];
-const ISLAND_STATE = { controls: "ExpandedControls", music: "ExpandedMusic", files: "ExpandedFiles", calendar: "ExpandedCalendar", timer: "ExpandedTimer", downloads: "ExpandedDownloads", agents: "ExpandedAgents", watch: "ExpandedWatch" };
+const ISLAND_SECTIONS = ["controls", "music", "files", "notes", "calendar", "timer", "downloads", "agents", "watch"];
+const ISLAND_STATE = { controls: "ExpandedControls", music: "ExpandedMusic", files: "ExpandedFiles", notes: "ExpandedNotes", calendar: "ExpandedCalendar", timer: "ExpandedTimer", downloads: "ExpandedDownloads", agents: "ExpandedAgents", watch: "ExpandedWatch" };
 
 // ------------------------------------------------------------------ state (this browser only)
 const store = {
@@ -89,7 +89,7 @@ function draw(surface, { onButton } = {}) {
         node = el("input", { class: "n-sl", type: "range", min: n.min, max: n.max, step: n.step || "any", value: valueOf(n.id, n.v), style: box, oninput: (e) => setValue(n.id, +e.target.value) });
         break;
       case "in":
-        node = el(n.ml ? "textarea" : "input", { class: "n-in", style: box, oninput: (e) => setValue(n.id, e.target.value) });
+        node = el(n.ml ? "textarea" : "input", { class: "n-in", style: n.bg ? { ...box, background: n.bg } : box, oninput: (e) => setValue(n.id, e.target.value) });
         node.value = valueOf(n.id, n.s);
         break;
       case "btn": {

@@ -284,6 +284,8 @@ public static class SiteExport
                 n["id"] = Id();
                 n["s"] = Scrub(box.Text ?? string.Empty);
                 if (box.AcceptsReturn) n["ml"] = 1;
+                if (Css(box.Background) is { } boxFill) n["bg"] = boxFill;
+                n["fs"] = Round(box.FontSize);
                 return;
             }
             case ScrollBar:

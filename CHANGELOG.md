@@ -5,6 +5,11 @@ All notable changes are listed here. Versions follow [semantic versioning](https
 
 ## Unreleased
 
+- **Notes in the Dynamic Island.** A new Notes tab beside the file shelf: type a thought, press Enter, and it is
+  kept. Click a note to edit it, pin the ones that matter to the top, copy or delete them. Shift+Enter starts a new
+  line, Esc clears the box before it closes the island, and Ctrl+Alt+N opens the tab. It is a Fieldkit extra
+  (Settings → Features → Notes, installed by default), has a "Write a quick note in the island" action you can give a
+  shortcut, and keeps up to 200 notes in a private file (`Notes\notes.json`) that the settings export never includes.
 - A redesigned README (banner, feature overview, fresh screenshots of the island, panel and Settings) and a docs
   index page; the other docs link back to it.
 

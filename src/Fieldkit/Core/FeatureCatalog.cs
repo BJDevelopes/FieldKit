@@ -271,6 +271,9 @@ public static class FeatureCatalog
                 "Periodically captures a chosen screen area and alerts on change.", Parent: "notch"),
             new("notchMascot", I, "Companion", "A small companion in the island", Glyphs.Smile, EnergyProfile.Idle,
                 "An animated companion that reacts to island events.", Parent: "notch"),
+            new("notchNotes", I, "Notes", "Quick notes on the island", Glyphs.Note, EnergyProfile.Idle,
+                "A Notes tab on the island: jot something down, edit it in place, pin it, copy it. Kept in a private file in the data folder, " +
+                "never in the settings export. Like the file shelf, but for text.", Parent: "notch", Extra: true),
 
             // System monitor
             new("monitorCPU", Mo, "CPU", "Processor usage and temperature", Glyphs.Cpu, EnergyProfile.Periodic,

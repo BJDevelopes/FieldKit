@@ -82,6 +82,7 @@ public sealed class IslandWindow : Window
             Budget = IslandLogic.ContentBudget(SizeChoice, Settings.GetDouble(IslandKeys.CustomHeight, IslandDefaults.CustomHeight)),
             Navigate = Navigate,
             Collapse = () => Collapse(),
+            Focus = TakePageFocus,
             Relayout = () => { if (_expanded) Rebuild(animate: true); },
         };
 
@@ -506,6 +507,12 @@ public sealed class IslandWindow : Window
         if (!_expanded) return;
         if (e.Key == Key.Escape)
         {
+            // A text box that has something to cancel or clear (a note being typed) takes Esc first.
+            if (Keyboard.FocusedElement is TextBox { Tag: Func<bool> escape } && escape())
+            {
+                e.Handled = true;
+                return;
+            }
             if (_nav.LyricsOpen || _nav.QueueOpen) { _nav.LyricsOpen = _nav.QueueOpen = false; Rebuild(animate: true); }
             else Collapse();
             e.Handled = true;
@@ -513,7 +520,8 @@ public sealed class IslandWindow : Window
         }
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
         var mods = Keyboard.Modifiers;
-        if (mods == (ModifierKeys.Control | ModifierKeys.Alt))
+        // Ctrl+Alt is AltGr on many layouts: while a text box has the keyboard (a note being typed) those keys are letters, not shortcuts.
+        if (mods == (ModifierKeys.Control | ModifierKeys.Alt) && Keyboard.FocusedElement is not TextBox)
         {
             var letter = key.ToString();
             if (VisibleSections().FirstOrDefault(s => s.Hotkey == letter) is { } s) { Navigate(s.Id); e.Handled = true; }
@@ -666,6 +674,14 @@ public sealed class IslandWindow : Window
         if (first) RefreshStub(force: true);
     }
 
+    /// <summary>A page with a text box was clicked: keep the island open (not just hovered) and let it take the keyboard.</summary>
+    private void TakePageFocus()
+    {
+        _openedByHover = false;
+        _closeTimer.Stop();
+        TakeFocus();
+    }
+
     private void TakeFocus()
     {
         SetNoActivate(false);
@@ -703,7 +719,7 @@ public sealed class IslandWindow : Window
         var budget = IslandLogic.ContentBudget(SizeChoice, Settings.GetDouble(IslandKeys.CustomHeight, IslandDefaults.CustomHeight));
         var nav = new IslandNav
         {
-            Section = _nav.Section, Width = width, Budget = budget, Navigate = _nav.Navigate, Collapse = _nav.Collapse, Relayout = _nav.Relayout,
+            Section = _nav.Section, Width = width, Budget = budget, Navigate = _nav.Navigate, Collapse = _nav.Collapse, Focus = _nav.Focus, Relayout = _nav.Relayout,
             LyricsOpen = _nav.LyricsOpen, QueueOpen = _nav.QueueOpen,
         };
         var content = IslandPages.Build(_ctx, nav, VisibleSections());

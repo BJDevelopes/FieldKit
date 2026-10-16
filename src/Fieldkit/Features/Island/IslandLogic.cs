@@ -41,6 +41,7 @@ public static class IslandLogic
         new("controls", "Controls", Glyphs.Toggles, "Playback, volume, brightness and your shortcuts.", "C", null),
         new("music", "Now Playing", Glyphs.MusicNote, "The song playing now, with its controls.", "M", null),
         new("files", "Files", Glyphs.Tray, "A shelf for the files you drop on the island.", "F", null),
+        new("notes", "Notes", Glyphs.Note, "Quick notes to jot down, pin and copy.", "N", "notchNotes"),
         new("calendar", "Calendar", Glyphs.Calendar, "Today's events and the month ahead.", "A", "notchCalendar"),
         new("timer", "Timer", Glyphs.Timer, "Timer, Pomodoro and stopwatch.", "R", "notchTimer"),
         new("downloads", "Downloads", Glyphs.Download, "Downloads in progress and just finished.", "D", "notchDownloads"),

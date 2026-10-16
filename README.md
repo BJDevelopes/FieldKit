@@ -69,8 +69,8 @@ dozens more tools, behind a single notification-area icon. No account, no teleme
     </td>
     <td valign="top">
       <h3>⚡ Everyday helpers</h3>
-      Keep awake (also while AI agents work), a command bar and radial menu, break reminders, a browser picker,
-      app blocking, quick toggles for dark mode, mute and the screen saver, and meeting links from your calendar.
+      Keep awake (also while AI agents work), quick notes in the island, a command bar and radial menu, break reminders,
+      a browser picker, app blocking, quick toggles for dark mode, mute and the screen saver, and meeting links from your calendar.
     </td>
   </tr>
 </table>
@@ -80,9 +80,12 @@ dozens more tools, behind a single notification-area icon. No account, no teleme
 
 ## A look around
 
-<p align="center">
-  <img src="docs/assets/island-controls.png" width="560" alt="The Dynamic Island on its Controls page: now playing, volume and tiles for timer, screenshot, keep awake, dark mode and more">
-</p>
+<table>
+  <tr>
+    <td align="center" width="50%"><img src="docs/assets/island-controls.png" alt="The Dynamic Island on its Controls page: now playing, volume and tiles for timer, screenshot, keep awake, dark mode and more"><br><sub>Controls</sub></td>
+    <td align="center" width="50%"><img src="docs/assets/island-notes.png" alt="The Dynamic Island on its Notes page: a box to jot something down and a list of pinned and recent notes"><br><sub>Notes</sub></td>
+  </tr>
+</table>
 
 <table>
   <tr>
@@ -154,7 +157,7 @@ rename, cut and paste in Explorer, fixed virtual desktop order) are marked as bu
 system setting.
 
 Fieldkit also has a few **extras** that Vorssaint does not ship, mostly ideas from its issues and pull requests:
-break reminders, duplicate files, disk usage, key remapping, block apps and a browser picker. They are installed
+break reminders, duplicate files, disk usage, key remapping, block apps, a browser picker and island notes. They are installed
 with everything else, and each does nothing until you set it up (break reminders start switched off).
 
 ## Privacy

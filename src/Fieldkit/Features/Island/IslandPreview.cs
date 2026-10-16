@@ -8,6 +8,7 @@ using Fieldkit.Features.Island.Agents;
 using Fieldkit.Features.Island.Calendar;
 using Fieldkit.Features.Island.Downloads;
 using Fieldkit.Features.Island.Media;
+using Fieldkit.Features.Island.Notes;
 using Fieldkit.Features.Island.Timer;
 using Fieldkit.Features.Island.Views;
 using Fieldkit.UI;
@@ -19,7 +20,7 @@ public enum IslandPreviewState
 {
     CollapsedIdle, CollapsedMusic, CollapsedTimer, CollapsedAgents, CollapsedNotice, CollapsedCompanion, CollapsedDownload, CollapsedWatch,
     ExpandedControls, ExpandedMusic, ExpandedLyrics, ExpandedTimer, ExpandedTimerSetup, ExpandedAgents, ExpandedCalendar, ExpandedDownloads,
-    ExpandedWatch, ExpandedFiles,
+    ExpandedWatch, ExpandedFiles, ExpandedNotes,
 }
 
 /// <summary>
@@ -93,6 +94,7 @@ public static class IslandPreview
                 IslandPreviewState.ExpandedDownloads => "downloads",
                 IslandPreviewState.ExpandedWatch => "watch",
                 IslandPreviewState.ExpandedFiles => "files",
+                IslandPreviewState.ExpandedNotes => "notes",
                 _ => "controls",
             };
             var nav = new IslandNav { Section = section, Width = expandedWidth, Budget = 264, LyricsOpen = state == IslandPreviewState.ExpandedLyrics };
@@ -182,6 +184,13 @@ public static class IslandPreview
             new("Dentist", local.Date.AddDays(1).AddHours(9), local.Date.AddDays(1).AddHours(10), false, "Main St", "Personal"),
             new("Holiday", local.Date.AddDays(2), local.Date.AddDays(3), true, null, "Personal"),
         };
+        var notes = new List<QuickNote>
+        {
+            new(Guid.Parse("00000000-0000-0000-0000-000000000001"), "Call the dentist about Thursday", local.AddDays(-2), local.AddDays(-2), Pinned: true),
+            new(Guid.Parse("00000000-0000-0000-0000-000000000002"), "Ideas for Saturday: farmers market, then the park if it stays dry", local.AddMinutes(-12), local.AddMinutes(-12)),
+            new(Guid.Parse("00000000-0000-0000-0000-000000000003"), "Guest Wi-Fi password is on the fridge", local.AddHours(-3), local.AddHours(-3)),
+            new(Guid.Parse("00000000-0000-0000-0000-000000000004"), "Rename the Q3 deck before sending it to Sam", local.AddDays(-1), local.AddDays(-1)),
+        };
         var lyrics = new Lyrics.LyricsService();
         lyrics.ShowPreview(music.TrackKey, new Lyrics.LyricsPayload(
         [
@@ -211,6 +220,7 @@ public static class IslandPreview
             MascotOn = () => true,
             Shelf = () => [new ShelfItem(@"C:\Users\me\Desktop\notes.txt"), new ShelfItem(@"C:\Users\me\Pictures\holiday.jpg"), new ShelfItem(@"C:\Users\me\Projects")],
             ChoosePlayer = _ => { },
+            Notes = () => notes,
         };
     }
 

@@ -46,6 +46,8 @@ public sealed class IslandModule : IFeatureModule
             "No Codex account resets (needs Codex's own sign-in), no online price-list updates; the Claude app's limits file location on Windows is assumed.");
         r.Implements("notchWatch", Parity.Partial,
             "Watches a screen area (GDI capture + offline Windows OCR) with all four rules. Follows a fixed screen area rather than a window, so a covered or moved window is not followed.");
+        r.Implements("notchNotes", Parity.Full,
+            "Fieldkit extra: quick notes in the island, beside the file shelf. Enter saves, click to edit, pin, copy and delete; up to 200 notes of 4,000 characters.");
         r.Implements("notchMascot", Parity.Partial,
             "Companion with styles, shapes, colours, moods, blinking and reactions to island events; music outranks the resting companion. No visits, petting, dozing or Command Bar face.");
 
@@ -78,5 +80,6 @@ public sealed class IslandModule : IFeatureModule
         r.Action(new ToolAction("notchWatch.choose", "notchWatch", "Watch an area of the screen", Glyphs.Eye, () => IslandHub.Watch?.ChooseArea(),
             ShortcutKey: IslandKeys.WatchShortcut));
         r.Action(new ToolAction("notchAgents.open", "notchAgents", "Show AI agents in Dynamic Island", Glyphs.Robot, () => IslandHub.Open("agents")));
+        r.Action(new ToolAction("notchNotes.open", "notchNotes", "Write a quick note in the island", Glyphs.Note, () => IslandHub.Open("notes")));
     }
 }
