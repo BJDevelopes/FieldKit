@@ -3,6 +3,7 @@
 ;   ISCC /DAppVersion=0.3.0 /DArch=x64 installer\Fieldkit.iss      -> artifacts\Fieldkit-0.3.0-setup-x64.exe
 ; It installs for the current user (no administrator prompt), upgrades in place, and its uninstaller removes what
 ; Fieldkit registered (Start with Windows, the browser picker) while keeping settings in %APPDATA%\Fieldkit.
+; Fieldkit's updater runs it as:  setup.exe /SILENT /SUPPRESSMSGBOXES /NORESTART /RELAUNCH=1 /CURRENTUSER  (or /ALLUSERS).
 
 #ifndef AppVersion
   #define AppVersion "0.0.0"
@@ -69,12 +70,19 @@ Name: "{autodesktop}\Fieldkit"; Filename: "{app}\Fieldkit.exe"; Tasks: desktopic
 
 [Run]
 Filename: "{app}\Fieldkit.exe"; Description: "Start Fieldkit"; Flags: nowait postinstall skipifsilent
+; Fieldkit's own updater runs this installer quietly with /RELAUNCH=1 and wants Fieldkit back afterwards.
+Filename: "{app}\Fieldkit.exe"; Parameters: "--background"; Flags: nowait runasoriginaluser; Check: RelaunchRequested
 
 [UninstallRun]
 ; Turns off Start with Windows and removes the browser picker's registration, for this user.
 Filename: "{app}\Fieldkit.exe"; Parameters: "--uninstall-cleanup"; Flags: runhidden waituntilterminated; RunOnceId: "FieldkitCleanup"
 
 [Code]
+function RelaunchRequested(): Boolean;
+begin
+  Result := ExpandConstant('{param:RELAUNCH|0}') = '1';
+end;
+
 // Closes the Fieldkit that runs from the install folder (a portable copy elsewhere is left alone).
 procedure StopInstalledFieldkit();
 var

@@ -11,6 +11,7 @@
 | No CPU temperature or fan control | [Sensors](#no-cpu-temperature-or-fan-control) |
 | Recording effects or GIF export greyed out | [ffmpeg](#recording-effects-or-gif-export-are-unavailable) |
 | Empty Packages or App updates | [winget](#packages-or-app-updates-show-nothing) |
+| An update that does not install, or none offered | [Updates](#updates) |
 | Something badly wrong | [Resetting Fieldkit](#resetting-fieldkit) |
 
 ## The tray icon is missing
@@ -50,6 +51,23 @@ and restart Fieldkit; plain trims and cuts work without it.
 ## Packages or App updates show nothing
 
 They use `winget`. Install or update **App Installer** from the Microsoft Store, then try again.
+
+## Updates
+
+Fieldkit checks for a new version a few seconds after it starts and asks before doing anything. If something is off:
+
+- **No update is offered.** Settings → About → **Check for updates** asks right now and says why if it can't (offline,
+  or GitHub is limiting requests: try again later). The start-up check can be switched off in the same place, and "Skip
+  this version" hides one version until a newer one arrives; Check for updates offers a skipped version again.
+- **"Open download page" instead of "Update now".** You are running the portable copy, which can't replace the file it
+  runs from. Quit Fieldkit and unzip the new `Fieldkit.exe` over the old one, or install with the installer.
+- **"does not match the checksum" or "no checksum".** Fieldkit only runs an installer whose SHA-256 matches the digest
+  GitHub published for it, and it threw the download away. Try again; if it keeps happening, download the installer
+  from the [releases page](https://github.com/BJDevelopes/FieldKit/releases/latest) by hand.
+- **The update stops at a permission prompt.** An install made for all users (in Program Files) needs your approval to
+  be replaced. Declining leaves Fieldkit as it was.
+- **Fieldkit started as administrator.** An update installs for the account it runs from. Run the installer by hand if
+  you want it elsewhere.
 
 ## Resetting Fieldkit
 

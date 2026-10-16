@@ -51,6 +51,7 @@ a { color: inherit; }
 .tile svg { width: 26px; height: 26px; }
 .tile .logo-mark { --s: 24px; }
 .tile-accent { background: linear-gradient(180deg, #2b95ff, #0a6cf5); border-color: rgba(255, 255, 255, .2); }
+.tile-coffee { background: linear-gradient(180deg, #ffe45c, #ffc400); border-color: rgba(255, 255, 255, .35); }
 
 /* ---------------------------------------------------------------- map title block */
 .legend { position: absolute; left: 16px; bottom: 76px; width: 300px; padding: 14px 16px 12px; border-radius: 4px; pointer-events: none;

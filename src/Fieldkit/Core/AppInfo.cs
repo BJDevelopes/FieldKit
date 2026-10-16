@@ -9,8 +9,9 @@ public static class AppInfo
 {
     public const string Name = "Fieldkit";
     public const string Tagline = "One tray icon doing the job of a dozen Windows utilities.";
-    public const string RepositoryUrl = "https://github.com/BJDevelopes/fieldkit";
+    public const string RepositoryUrl = "https://github.com/BJDevelopes/FieldKit";
     public const string UpstreamUrl = "https://github.com/vorssaint/vorssaint-utils";
+    public const string SupportUrl = "https://buymeacoffee.com/bjdevelopes";
 
     public static string Version =>
         Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";

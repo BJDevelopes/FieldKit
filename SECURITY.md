@@ -23,7 +23,9 @@ Only the latest release receives security fixes while the project is in preview 
 
 In scope: anything that lets untrusted input (web content, calendar feeds, file names, clipboard
 data, other apps' windows) make Fieldkit run code, open unexpected targets, delete or leak data,
-escalate privileges, or bypass Windows protections such as SmartScreen or the Mark of the Web.
+escalate privileges, or bypass Windows protections such as SmartScreen or the Mark of the Web. That includes the
+updater: anything that makes it download or run a file other than the installer GitHub published for the release, or
+skip its SHA-256 check.
 
 Out of scope: problems that need an attacker who already controls your user account, and the
 documented, opt-in behaviour of features (for example, cleaning mode blocking the keyboard).

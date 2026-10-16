@@ -61,6 +61,24 @@ public sealed class KeepAwakeModule : IFeatureModule
   are absolute http/https/mailto; move files only through `RecycleBin.Send`, which refuses anything the
   Recycle Bin cannot keep instead of letting the shell delete it for good.
 
+## Updates
+
+The updater is split so the decisions can be tested without a network or a window:
+
+* `Core/Updates/UpdateLogic.cs` is plain static code: reading GitHub's release list, comparing versions, choosing the
+  installer for this PC, the SHA-256 and address checks, whether the copy is installed or portable, and when to ask.
+* `Core/Updates/AppUpdater.cs` does the HTTP: the check, the download (into `%TEMP%\Fieldkit-update`, size and checksum
+  verified, thrown away on any mismatch) and starting the installer. It takes an `HttpClient` factory, so tests feed it
+  canned answers (`tests/Fieldkit.Tests/Core/AppUpdaterTests.cs`).
+* `Features/Shell/UpdateService.cs` schedules the start-up check (settings `update.check`, `update.lastCheck`,
+  `update.latest`, `update.skipped`) and `UpdatePromptWindow.cs` is the "Update now?" window. Settings → About has the
+  switch and **Check for updates**.
+* The installer script (`installer/Fieldkit.iss`) restarts Fieldkit when it is started with `/RELAUNCH=1`, and the
+  release workflow publishes this version's `CHANGELOG.md` section as the release notes the prompt shows.
+
+An installer is only run when its SHA-256 equals the `digest` GitHub published for that asset, so a release without one
+is never installed automatically. Do not weaken that check: Fieldkit is not code-signed.
+
 ## Settings
 
 `Settings.Get/Set` is a flat JSON key/value store at `%APPDATA%\Fieldkit\settings.json`

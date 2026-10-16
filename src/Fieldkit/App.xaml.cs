@@ -241,6 +241,8 @@ public partial class App : Application
         _taskbarButton.Start();
 
         FeatureRuntime.Start();
+        UpdateService.QuitAction = ShutdownApp;
+        UpdateService.ScheduleStartupCheck(TimeSpan.FromSeconds(25));
         ListenForShowRequests();
         CommandChannel.Listen();
         if (pendingUrl is not null)

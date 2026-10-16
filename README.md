@@ -8,13 +8,15 @@
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-96d6ba"></a>
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0a84ff">
   <a href="https://github.com/BJDevelopes/FieldKit/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/BJDevelopes/FieldKit/total?color=ffa85c"></a>
+  <a href="https://buymeacoffee.com/bjdevelopes"><img alt="Buy me a coffee" src="https://img.shields.io/badge/buy%20me%20a%20coffee-ffdd00?logo=buymeacoffee&logoColor=black"></a>
 </p>
 
 <p align="center">
   <b><a href="https://bjdevelopes.github.io/FieldKit/">Live demo</a></b> &nbsp;·&nbsp;
   <b><a href="https://github.com/BJDevelopes/FieldKit/releases/latest">Download</a></b> &nbsp;·&nbsp;
   <a href="docs/README.md">Docs</a> &nbsp;·&nbsp;
-  <a href="CHANGELOG.md">Changelog</a>
+  <a href="CHANGELOG.md">Changelog</a> &nbsp;·&nbsp;
+  <a href="https://buymeacoffee.com/bjdevelopes">Support</a>
 </p>
 
 ---
@@ -119,6 +121,15 @@ Neither needs .NET installed.
 
 Click the tray icon (or the island) to open the panel; right-click the tray icon for Settings and Quit.
 
+### Updating
+
+Fieldkit looks for a newer release a few seconds after it starts and asks: **"Fieldkit 0.5.0 is available. Update now?"**
+with what's new, and three choices: *Update now*, *Later* or *Skip this version*. An installed copy then downloads the
+new installer, checks it against the SHA-256 checksum GitHub published for that exact file, installs over the old
+version and starts again by itself. (The portable copy can't replace the file it runs from, so it opens the download
+page instead.) *Settings → About* has **Check for updates** and a switch to turn the start-up check off. The check is one
+request to GitHub's public releases list; nothing about you or your PC is sent.
+
 ## Build and run
 
 Requires Windows 10 2004+ and the [.NET 8 SDK](https://dotnet.microsoft.com/download).
@@ -163,7 +174,14 @@ with everything else, and each does nothing until you set it up (break reminders
 ## Privacy
 
 No account, no telemetry, no analytics. Everything stays in `%APPDATA%\Fieldkit`, and the network is used only by
-features you invoke (speed test, lyrics, calendar feeds, winget). Details in [docs/PRIVACY.md](docs/PRIVACY.md).
+features you invoke (speed test, lyrics, calendar feeds, winget) and the update check at start-up, which you can
+switch off. Details in [docs/PRIVACY.md](docs/PRIVACY.md).
+
+## Support Fieldkit
+
+Fieldkit is free and open source, made by one person in their spare time. If it saves you time, you can
+[**buy me a coffee**](https://buymeacoffee.com/bjdevelopes) to help keep it going. Tips are never expected: starring
+the repository, reporting a bug or telling a friend helps just as much.
 
 ## Help and contributing
 

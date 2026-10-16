@@ -4,7 +4,8 @@
 
 > [!IMPORTANT]
 > Fieldkit has **no account, no telemetry, no analytics and no crash reporting**. Nothing you do in the app
-> is sent anywhere. It only uses the network for a feature you invoke, listed [below](#when-fieldkit-uses-the-network).
+> is sent anywhere. It uses the network only for a feature you invoke and for one update check at start-up (which
+> you can switch off), all listed [below](#when-fieldkit-uses-the-network).
 
 ## What stays on your PC
 
@@ -35,7 +36,7 @@ GitHub Copilot already keep in your user profile. It only reads them, on this PC
 
 ## When Fieldkit uses the network
 
-Only when you use a feature that needs it:
+Only when you use a feature that needs it, and for the update check:
 
 | Feature | Contacts | When |
 |---|---|---|
@@ -45,6 +46,13 @@ Only when you use a feature that needs it:
 | Radial menu link icons | the website of a link you add (`/favicon.ico`) | when the link's icon is fetched |
 | Packages and App updates | Microsoft's winget and Store sources, through `winget` | when you search, install, update or check for updates |
 | Command Bar web search | your browser opens Bing with your query | when you choose "Search the web" |
+| Update check | `api.github.com` (this project's public list of releases) | a few seconds after start-up (at most every 6 hours) and when you click Check for updates; switch it off in Settings → About |
+| Installing an update | `github.com`, then GitHub's release storage, for the installer file | only after you choose "Update now" |
+
+The update check is a plain request for the releases list. It sends no account, identifier or information about
+your PC beyond what any web request carries (your IP address and a `Fieldkit/<version>` user-agent). An installer is
+only run after its SHA-256 matches the checksum GitHub published for that exact file; if a release has no checksum,
+Fieldkit does not install it by itself.
 
 Links from outside data (for example calendar events) only open if they are web or email links.
 

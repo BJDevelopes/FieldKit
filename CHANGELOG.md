@@ -5,6 +5,15 @@ All notable changes are listed here. Versions follow [semantic versioning](https
 
 ## Unreleased
 
+- A **Buy me a coffee** link (https://buymeacoffee.com/bjdevelopes) in the README, the docs, Settings → About and on
+  the website, and a Sponsor button on the GitHub repository.
+- **Fieldkit updates itself.** A few seconds after it starts, Fieldkit looks at GitHub's list of releases and, when
+  there is a newer one, asks "Fieldkit X is available. Update now?" with what's new and the choices *Update now*,
+  *Later* and *Skip this version*. An installed copy downloads the installer for your PC, checks it against the SHA-256
+  checksum GitHub published for that exact file (and refuses a release without one), installs over the old version and
+  starts again. The portable copy opens the download page instead. Settings → About has **Check for updates** and a
+  switch to turn the start-up check off. At most one request every six hours, nothing about you or your PC is sent
+  (see docs/PRIVACY.md). Release notes on GitHub are now this changelog's section for the version.
 - **Notes in the Dynamic Island.** A new Notes tab beside the file shelf: type a thought, press Enter, and it is
   kept. Click a note to edit it, pin the ones that matter to the top, copy or delete them. Shift+Enter starts a new
   line, Esc clears the box before it closes the island, and Ctrl+Alt+N opens the tab. It is a Fieldkit extra

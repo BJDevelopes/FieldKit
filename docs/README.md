@@ -25,3 +25,4 @@
 - [Download the latest release](https://github.com/BJDevelopes/FieldKit/releases/latest)
 - [Live demo](https://bjdevelopes.github.io/FieldKit/)
 - [Open an issue](https://github.com/BJDevelopes/FieldKit/issues/new/choose)
+- [Buy me a coffee](https://buymeacoffee.com/bjdevelopes) if Fieldkit is useful to you

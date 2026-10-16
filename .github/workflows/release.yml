@@ -91,8 +91,18 @@ jobs:
         run: |
           $tag = '${{ github.ref_name }}'
           $version = $tag.TrimStart('v')
-          $flags = @('--generate-notes', '--title', "Fieldkit $version")
+          $flags = @('--title', "Fieldkit $version")
           if ($tag.Contains('-') -or $version.StartsWith('0.')) { $flags += '--prerelease' }
+          # The release notes are this version's section of CHANGELOG.md: they are what Fieldkit's update prompt shows.
+          $lines = Get-Content CHANGELOG.md
+          $heading = $lines | Select-String -Pattern ('^## ' + [regex]::Escape($version) + '( |$)') | Select-Object -First 1
+          $notes = Join-Path $env:RUNNER_TEMP 'release-notes.md'
+          if ($heading) {
+            $body = @()
+            for ($i = $heading.LineNumber; $i -lt $lines.Count -and $lines[$i] -notmatch '^## '; $i++) { $body += $lines[$i] }
+            ($body -join "`n").Trim() | Set-Content -Path $notes -Encoding utf8
+          }
+          if ((Test-Path $notes) -and (Get-Item $notes).Length -gt 0) { $flags += @('--notes-file', $notes) } else { $flags += '--generate-notes' }
           gh release create $tag `
             "artifacts/Fieldkit-$version-setup-x64.exe" "artifacts/Fieldkit-$version-setup-arm64.exe" `
             "artifacts/Fieldkit-$version-win-x64.zip" "artifacts/Fieldkit-$version-win-arm64.zip" @flags
