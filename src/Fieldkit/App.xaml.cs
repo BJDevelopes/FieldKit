@@ -216,6 +216,17 @@ public partial class App : Application
             return;
         }
 
+        // "Always run as administrator": ask Windows for the rights and restart elevated (this copy leaves). Declined: carry on as a normal user.
+        if (ElevationPolicy.ShouldElevateAtStartup(ElevationPolicy.AlwaysAdmin, Features.Apps.Common.Elevation.IsAdministrator, e.Args))
+        {
+            Log.Info("Always run as administrator is on: restarting with administrator rights");
+            if (ElevationPolicy.TryRestartElevated(AppInfo.ExecutablePath, e.Args))
+            {
+                Shutdown(0);
+                return;
+            }
+        }
+
         Log.Info($"{AppInfo.Name} {AppInfo.Version} starting");
         ThemeManager.Initialize();
         Features.Wellbeing.BreakRemindersService.MigrateDefaults();

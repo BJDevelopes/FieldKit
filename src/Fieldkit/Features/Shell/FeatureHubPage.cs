@@ -290,7 +290,7 @@ public static class FeatureHubPage
     {
         var permissions = new[]
         {
-            new PermissionInfo("Administrator", "Lets fan control, some temperature sensors and system-wide cleaning reach hardware and protected folders. Everything else runs as a normal user.",
+            new PermissionInfo("Administrator", "Lets fan control, some temperature sensors and system-wide cleaning reach hardware and protected folders. Everything else runs as a normal user. Settings → General has an Always run as administrator switch that asks each time Fieldkit starts.",
                 ["fanControl", "monitorCPU", "monitorGPU", "cleaner"], IsElevated, ""),
             new PermissionInfo("Microphone", "Lets screen recordings include your voice and the microphone tools read input levels.",
                 ["screenRecorder", "micMute"], () => null, "ms-settings:privacy-microphone"),

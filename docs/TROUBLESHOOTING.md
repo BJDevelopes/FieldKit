@@ -31,7 +31,12 @@ defaults avoid them. If you record one yourself, typing characters such as € o
 ## Keyboard or mouse features stop working in some windows
 
 Windows does not let a normal app see input aimed at apps running as administrator. Run Fieldkit as
-administrator (Settings → Features → Permissions) if you need its input features there.
+administrator if you need its input features there: **Settings → General → Always run as administrator** makes
+Fieldkit ask for permission every time it starts (including when it starts with Windows), or use Settings →
+Features → Permissions → Restart as administrator for one session.
+
+If you decline the permission prompt, Fieldkit starts as a normal user, and turning the switch off stops the prompt at
+the next start.
 
 ## Smooth scrolling scrolls too far in an app
 

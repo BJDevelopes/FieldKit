@@ -63,5 +63,7 @@ Links from outside data (for example calendar events) only open if they are web 
 
 Fieldkit runs as a normal user. Administrator rights are only needed for optional extras (CPU
 temperatures and fan control through the PawnIO driver, system-wide cleaning, machine-wide
-uninstall leftovers), and the app asks before restarting elevated. Settings → Features → Permissions
-lists which features use the microphone, camera, notifications and input hooks.
+uninstall leftovers), and the app asks before restarting elevated. Settings → General → Always run as
+administrator makes it ask Windows for that permission each time it starts; it never gains administrator rights
+without the permission prompt. Settings → Features → Permissions lists which features use the microphone, camera,
+notifications and input hooks.

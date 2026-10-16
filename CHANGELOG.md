@@ -3,6 +3,14 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
+## Unreleased
+
+- **Always run as administrator.** A new switch in Settings → General: when it is on, Fieldkit asks Windows for
+  administrator rights every time it starts (also when it starts with Windows) and restarts elevated, so the input
+  features work in administrator windows too without right-clicking "Run as administrator" each time. Declining the
+  permission prompt leaves Fieldkit running as a normal user. It asks every time on purpose: a task or flag that
+  started Fieldkit elevated silently would let any program running as you become administrator through it.
+
 ## 0.5.0 (2026-10-15)
 
 - A **Buy me a coffee** link (https://buymeacoffee.com/bjdevelopes) in the README, the docs, Settings → About and on

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using Fieldkit.Core;
+using Fieldkit.Features.Apps.Common;
 using Fieldkit.UI;
 
 namespace Fieldkit.Features.Shell;
@@ -24,6 +25,7 @@ public static class GeneralPage
             Ui.Group("Startup and notifications",
                 Ui.Split(Ui.Stack(2, Ui.Text("Start with Windows", 13.5, FontWeights.Medium),
                     Ui.Caption("Opens quietly in the notification area when you sign in.")), startup),
+                AlwaysAdminRow(),
                 Ui.ToggleRow("Show on the taskbar", "A Fieldkit button next to the notification area, so the panel is one click away. It steps aside for full-screen apps and auto-hiding taskbars.", TaskbarButton.EnabledKey, true),
                 Ui.ToggleRow("Notifications", "Alerts and finished tasks appear as Windows notifications.", "general.notifications", true)),
             PanelLayout(),
@@ -33,6 +35,21 @@ public static class GeneralPage
                         Ui.Caption("Save your preferences to a file to restore them or move them to another PC. Machine-specific state is left out.")),
                     Ui.Row(8, Ui.Button("Export…", Export), Ui.Button("Import…", Import)))));
     }
+
+    /// <summary>The switch that makes Fieldkit ask for administrator rights every time it starts.</summary>
+    private static FrameworkElement AlwaysAdminRow() => Ui.ToggleRow("Always run as administrator",
+        "Fieldkit asks Windows for permission each time it starts, including when it starts with Windows, and restarts with administrator rights. " +
+        "Windows hides keys and mouse input from normal apps while an administrator window is in front, so this makes the switcher, snippets, " +
+        "scrolling and other input features work there too. If you decline the prompt, Fieldkit runs as a normal user. " +
+        (Elevation.IsAdministrator ? "Fieldkit is running as administrator now." : "Fieldkit is running as a normal user now."),
+        ElevationPolicy.AlwaysKey, false, on =>
+        {
+            if (!on || Elevation.IsAdministrator) return;
+            var answer = MessageBox.Show(
+                "Fieldkit will restart now and ask Windows for permission. Restart now?",
+                "Always run as administrator", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            if (answer == MessageBoxResult.OK) FeatureHubPage.RestartElevated();
+        });
 
     private static FrameworkElement PanelLayout()
     {

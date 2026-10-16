@@ -30,6 +30,13 @@ $self = Start-Process -FilePath $exe -ArgumentList '--selftest' -Wait -PassThru
 if ($self.ExitCode -ne 0) { Write-Error 'Selftest failed (see fieldkit.log in FIELDKIT_DATA_DIR)'; exit 1 }
 Write-Host 'Selftest passed.'
 
+# The same check CI makes: docs/PARITY.md must match what the app generates (run ./build.ps1 -Parity to refresh it).
+$generated = Join-Path ([IO.Path]::GetTempPath()) 'parity.generated.md'
+Start-Process -FilePath $exe -ArgumentList '--write-parity', $generated -Wait | Out-Null
+$fresh = (Get-Content $generated -Raw) -replace "`r", ''
+$committed = (Get-Content (Join-Path $root 'docs/PARITY.md') -Raw) -replace "`r", ''
+if (-not $Parity -and $fresh -ne $committed) { Write-Error 'docs/PARITY.md is stale: run ./build.ps1 -Parity'; exit 1 }
+
 if ($Parity) {
     Start-Process -FilePath $exe -ArgumentList '--write-parity', (Join-Path $root 'docs/PARITY.md') -Wait | Out-Null
     Write-Host 'docs/PARITY.md regenerated.'
