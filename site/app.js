@@ -419,7 +419,7 @@ async function findLatestRelease() {
 }
 
 // ------------------------------------------------------------------ wallpaper: a contour map with the latest release on the summit
-const topo = { version: "0.4.0", summit: null };
+const topo = { version: "0.5.0", summit: null };
 
 /** Seeded value noise, so the terrain is the same on every visit. */
 function valueNoise(seed) {

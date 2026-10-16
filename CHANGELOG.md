@@ -3,7 +3,7 @@
 All notable changes are listed here. Versions follow [semantic versioning](https://semver.org);
 0.x releases are previews.
 
-## Unreleased
+## 0.5.0 (2026-10-15)
 
 - A **Buy me a coffee** link (https://buymeacoffee.com/bjdevelopes) in the README, the docs, Settings → About and on
   the website, and a Sponsor button on the GitHub repository.
