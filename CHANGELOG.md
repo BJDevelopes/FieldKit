@@ -5,6 +5,10 @@ All notable changes are listed here. Versions follow [semantic versioning](https
 
 ## Unreleased
 
+- **Project page SEO.** The demo site now has a keyword title and description, a canonical address, Open Graph and
+  Twitter share cards with a preview image, structured data (software application and FAQ), a sitemap, an
+  apple-touch icon and a plain-text copy of the page for search engines and screen readers.
+
 - **Always run as administrator.** A new switch in Settings → General: when it is on, Fieldkit asks Windows for
   administrator rights every time it starts (also when it starts with Windows) and restarts elevated, so the input
   features work in administrator windows too without right-clicking "Run as administrator" each time. Declining the

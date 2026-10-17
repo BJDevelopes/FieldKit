@@ -1,21 +1,91 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
+  <script>document.documentElement.classList.remove("no-js")</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fieldkit for Windows</title>
-  <meta name="description" content="Fieldkit is a modular toolkit for Windows 10 and 11: volume mixer, system monitor, keep awake, a Dynamic Island in the taskbar, clipboard history, window layouts and more. This page is a live demo of the real app.">
-  <meta property="og:title" content="Fieldkit for Windows">
-  <meta property="og:description" content="The modular toolkit for Windows 10 and 11. Try the live demo desktop.">
+  <title>Fieldkit: free Windows toolkit, volume mixer &amp; 80+ tools</title>
+  <meta name="description" content="Free, open-source toolkit for Windows 10 and 11: per-app volume mixer, system monitor, keep awake, Dynamic Island and 80+ more tools. Try the live demo.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="BJDevelopes">
+  <link rel="canonical" href="https://bjdevelopes.github.io/FieldKit/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Fieldkit">
+  <meta property="og:title" content="Fieldkit: the free toolkit for Windows 10 &amp; 11">
+  <meta property="og:description" content="Volume mixer, system monitor, keep awake, a Dynamic Island and 80+ tools in one tray icon. Free and open source. Try the live demo desktop.">
+  <meta property="og:url" content="https://bjdevelopes.github.io/FieldKit/">
+  <meta property="og:image" content="https://bjdevelopes.github.io/FieldKit/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Fieldkit on a green contour map, showing the Dynamic Island Controls page">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fieldkit: the free toolkit for Windows 10 &amp; 11">
+  <meta name="twitter:description" content="Volume mixer, system monitor, keep awake, a Dynamic Island and 80+ tools in one tray icon. Free and open source.">
+  <meta name="twitter:image" content="https://bjdevelopes.github.io/FieldKit/og.png">
+  <meta name="twitter:image:alt" content="Fieldkit on a green contour map, showing the Dynamic Island Controls page">
+
   <meta name="theme-color" content="#0b1311">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://bjdevelopes.github.io/FieldKit/#app",
+        "name": "Fieldkit",
+        "description": "A free, open-source, modular toolkit for Windows 10 and 11 that lives in the notification area: per-app volume mixer, system monitor, keep awake, a Dynamic Island, clipboard history, window layouts and more.",
+        "url": "https://bjdevelopes.github.io/FieldKit/",
+        "image": "https://bjdevelopes.github.io/FieldKit/og.png",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "downloadUrl": "https://github.com/BJDevelopes/FieldKit/releases/latest",
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Person", "name": "BJDevelopes", "url": "https://github.com/BJDevelopes" },
+        "sameAs": ["https://github.com/BJDevelopes/FieldKit", "https://buymeacoffee.com/bjdevelopes"],
+        "featureList": [
+          "Per-app volume mixer",
+          "System monitor",
+          "Keep awake",
+          "Dynamic Island with controls, music, files, notes, calendar, timer, downloads and AI agents",
+          "Clipboard history",
+          "Window layouts",
+          "Screenshot tool",
+          "Install only the features you use"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://bjdevelopes.github.io/FieldKit/#site",
+        "name": "Fieldkit",
+        "url": "https://bjdevelopes.github.io/FieldKit/",
+        "inLanguage": "en"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Is Fieldkit free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Fieldkit is free and open source under the GPL-3.0 licence. There is no account and no subscription." } },
+          { "@type": "Question", "name": "Which versions of Windows does Fieldkit support?", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 (version 2004 or newer) and Windows 11. It does not need .NET installed." } },
+          { "@type": "Question", "name": "Does Fieldkit collect data?", "acceptedAnswer": { "@type": "Answer", "text": "No account, no telemetry and no analytics. Settings stay on your PC, and the network is only used for features you turn on and the update check, which asks GitHub for the latest release." } },
+          { "@type": "Question", "name": "How do I update Fieldkit?", "acceptedAnswer": { "@type": "Answer", "text": "The installed version checks GitHub when it starts and asks whether to update to the new version. You can also download the latest release manually." } },
+          { "@type": "Question", "name": "Is there a version for Mac?", "acceptedAnswer": { "@type": "Answer", "text": "Fieldkit is the Windows port of Vorssaint, the macOS menu bar utility. Mac users should use Vorssaint." } }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <noscript>
     <div class="noscript">
-      <h1>Fieldkit for Windows</h1>
-      <p>The modular toolkit for Windows 10 and 11. This page is an interactive demo of the real app and needs JavaScript.</p>
+      <p><strong>Fieldkit</strong>: the free, open-source toolkit for Windows 10 and 11. The interactive demo on this page needs JavaScript; the details are below.</p>
       <p><a href="https://github.com/BJDevelopes/FieldKit/releases/latest">Download Fieldkit</a> · <a href="https://github.com/BJDevelopes/FieldKit">GitHub</a></p>
     </div>
   </noscript>
@@ -99,6 +169,40 @@
   </main>
 
   <p class="legal">Fieldkit is an independent project, not affiliated with Microsoft or Vorssaint. Everything on this desktop is drawn from the real app's interface.</p>
+
+  <!-- The demo above is drawn by script; this is the same story as plain text, for search engines, screen readers and no-script visitors. -->
+  <article class="about-text" aria-label="About Fieldkit">
+    <h1>Fieldkit: the free toolkit for Windows 10 and 11</h1>
+    <p>Fieldkit is a free, open-source toolkit that lives in the Windows notification area. It brings a per-app volume mixer, a real system monitor, keep awake, a Dynamic Island in the taskbar, clipboard history, window layouts and more than 80 other small tools into one app. Every feature is a module, so you install only what you use. There is no account, no telemetry and no subscription.</p>
+    <p>Fieldkit is the Windows port of <a href="https://github.com/vorssaint/vorssaint-utils">Vorssaint</a>, the macOS menu bar utility.</p>
+
+    <h2>What Fieldkit does</h2>
+    <ul>
+      <li><strong>Volume mixer:</strong> set the volume of each app separately.</li>
+      <li><strong>System monitor:</strong> CPU, memory, disk and network at a glance.</li>
+      <li><strong>Keep awake:</strong> stop the PC from sleeping while you work or present.</li>
+      <li><strong>Dynamic Island:</strong> a pill in the taskbar that expands into Controls, Music, Files, Notes, Calendar, Timer, Downloads and AI Agents pages.</li>
+      <li><strong>Clipboard history and window layouts:</strong> paste what you copied earlier and snap windows into place.</li>
+      <li><strong>Screenshot, quick notes, dark mode, empty Recycle Bin, eject all drives</strong> and dozens more one-click controls.</li>
+    </ul>
+
+    <h2>Download Fieldkit</h2>
+    <p>Get the installer or the portable zip from <a href="https://github.com/BJDevelopes/FieldKit/releases/latest">the latest release on GitHub</a>. Neither needs .NET installed. The installed version checks for updates when it starts and asks before it updates.</p>
+
+    <h2>Frequently asked questions</h2>
+    <h3>Is Fieldkit free?</h3>
+    <p>Yes. It is free and open source under the GPL-3.0 licence, with no account and no subscription.</p>
+    <h3>Which versions of Windows does it support?</h3>
+    <p>Windows 10 (version 2004 or newer) and Windows 11.</p>
+    <h3>Does Fieldkit collect data?</h3>
+    <p>No account, no telemetry and no analytics. Settings stay on your PC. The network is only used for features you turn on and for the update check, which asks GitHub for the latest release.</p>
+    <h3>How do I update Fieldkit?</h3>
+    <p>The installed version asks whether to update to the new version when it starts. You can also download the latest release by hand.</p>
+    <h3>Is there a version for Mac?</h3>
+    <p>Fieldkit is for Windows. On a Mac, use <a href="https://github.com/vorssaint/vorssaint-utils">Vorssaint</a>.</p>
+
+    <p><a href="https://github.com/BJDevelopes/FieldKit">Source code</a> · <a href="https://github.com/BJDevelopes/FieldKit/blob/main/docs/README.md">Documentation</a> · <a href="https://github.com/BJDevelopes/FieldKit/blob/main/CHANGELOG.md">Changelog</a> · <a href="https://buymeacoffee.com/bjdevelopes">Buy me a coffee</a></p>
+  </article>
 
   <script src="app.js"></script>
 </body>

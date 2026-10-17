@@ -191,6 +191,13 @@ a { color: inherit; }
 .legal { position: fixed; left: 16px; bottom: 54px; margin: 0; font-size: 11px; color: rgba(190, 235, 215, .34); pointer-events: none; }
 .noscript { padding: 40px 16px; max-width: 640px; margin: 0 auto; }
 
+/* The plain-text version of the page: kept for search engines and screen readers, shown only when script is off. */
+.about-text { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.no-js .about-text { position: static; width: auto; height: auto; margin: 0 auto; padding: 0 16px 60px; max-width: 640px; overflow: visible; clip: auto; clip-path: none; white-space: normal; }
+.no-js body { overflow: auto; height: auto; }
+.no-js #desktop, .no-js .legal { display: none; }
+.no-js .about-text a { color: var(--sage); }
+
 /* ---------------------------------------------------------------- phones and small windows: the same desktop, fitted */
 .tbb.menu, .scrim { display: none; }
 .win.compact .tb-title { gap: 8px; }
